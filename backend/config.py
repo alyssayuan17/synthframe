@@ -79,6 +79,14 @@ class Settings(BaseSettings):
 # Global settings instance - import this elsewhere
 settings = Settings()
 
+# ===========================================
+# SCRAPER SETTINGS (module-level constants)
+# ===========================================
+SCRAPER_MAX_PAGES: int = 3
+SCRAPER_TIMEOUT_S: float = 10.0
+SCRAPER_ALLOWLIST: list = ["dribbble.com", "behance.net", "awwwards.com"]
+ENABLE_SCRAPER_DEFAULT: bool = True
+
 
 # ===========================================
 # COMPONENT DETECTION RULES
