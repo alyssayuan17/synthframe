@@ -38,14 +38,19 @@ async def analyze_image(request: ImageUploadRequest):
         
         # Convert to WireframeLayout format
         from backend.models.wireframe import WireframeLayout, WireframeComponent, Size
+        from backend.config import DEVICE_CANVAS_SIZES, DEFAULT_DEVICE_TYPE
+        
+        # Get canvas size for device type
+        device = request.device_type or DEFAULT_DEVICE_TYPE
+        canvas = DEVICE_CANVAS_SIZES.get(device, DEVICE_CANVAS_SIZES[DEFAULT_DEVICE_TYPE])
         
         components = []
         for comp in result.wireframe.components:
             components.append(WireframeComponent(
                 id=comp.id,
                 type=comp.type.value,  # Convert enum to string
-                position=comp.position,
-                size=comp.size,
+                position=comp.position.model_dump(),
+                size=comp.size.model_dump(),
                 props=comp.props,
                 confidence=comp.confidence,
                 source="cv"
@@ -54,7 +59,7 @@ async def analyze_image(request: ImageUploadRequest):
         layout = WireframeLayout(
             id=result.wireframe.id,
             name=result.wireframe.name,
-            canvas_size=Size(width=1200, height=800),
+            canvas_size=Size(width=canvas["width"], height=canvas["height"]),
             source_type="sketch" if request.image_type == "sketch" else "mockup",
             components=components
         )
