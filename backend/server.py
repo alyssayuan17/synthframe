@@ -16,18 +16,21 @@ Usage:
 
 import json
 from typing import Optional, Dict, Any
-from mcp.server import MCPServer
+from mcp.server.fastmcp import FastMCP
 from mcp.server.stdio import stdio_server
 
 # Import CV pipeline (already implemented)
 from vision import analyze_sketch as cv_analyze_sketch
 
-# Placeholder imports (you'll implement these)
-# from llm.gemini_client import GeminiClient
-# from scraper.scrape import scrape_similar_sites
+from llm.client import LlmClient
+from llm.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE, EDIT_SYSTEM_PROMPT
+from llm.json_repair import parse_json
 
 # Initialize MCP server
-app = MCPServer("synthframe")
+app = FastMCP("synthframe")
+
+# Initialize LLM Client
+llm_client = LlmClient()
 
 # In-memory storage for wireframes
 wireframes_db = {}
@@ -39,83 +42,108 @@ wireframes_db = {}
 
 def generate_with_gemini(prompt: str, context: str = "") -> dict:
     """
-    PLACEHOLDER: Replace with your actual Gemini implementation.
-
-    This should:
-    1. Take user prompt + optional scraper context
-    2. Call Gemini API
-    3. Return wireframe JSON
+    Generate wireframe from text description using LLM.
     """
-    # TODO: Implement Gemini generation
-    return {
-        "id": f"wf_{hash(prompt)}",
-        "name": "Generated Wireframe",
-        "canvas_size": {"width": 1440, "height": 900},
-        "components": [
-            {
-                "id": "navbar-1",
-                "type": "navbar",
-                "position": {"x": 0, "y": 0},
-                "size": {"width": 1440, "height": 64},
-                "props": {"logo": "Logo", "links": ["Home", "About"]},
-                "source": "llm",
-                "children": []
-            }
-        ]
-    }
+    # 1. Build prompt
+    user_content = USER_PROMPT_TEMPLATE.format(
+        webscraper_context=context,
+        user_input=prompt
+    )
+    
+    full_prompt = f"{SYSTEM_PROMPT}\n\nUSER REQUEST:\n{user_content}"
+    
+    # 2. Call LLM
+    print(f"Generating wireframe for: {prompt}")
+    response_text = llm_client.generate(full_prompt)
+    
+    # 3. Parse JSON
+    try:
+        wireframe = parse_json(response_text)
+        # Ensure it has an ID
+        if "id" not in wireframe:
+            wireframe["id"] = f"wf_{hash(prompt)}"
+        return wireframe
+    except Exception as e:
+        print(f"Error parsing LLM response: {e}")
+        # Fallback to a basic valid wireframe on error
+        return {
+            "id": f"wf_error_{hash(prompt)}",
+            "name": "Error Generating Wireframe",
+            "canvas_size": {"width": 1440, "height": 900},
+            "components": [],
+            "error": str(e)
+        }
 
 
 def refine_with_gemini(detected_components: list, prompt: str = "") -> dict:
     """
-    PLACEHOLDER: Replace with your actual Gemini refinement.
-
-    This should:
-    1. Take CV-detected components
-    2. Refine with Gemini (better types, add props, fix layout)
-    3. Return improved wireframe JSON
+    Refine CV-detected components using LLM.
     """
-    # TODO: Implement Gemini refinement
-    return {
-        "id": f"wf_cv_refined",
-        "name": "Sketch Wireframe",
-        "canvas_size": {"width": 1200, "height": 800},
-        "components": detected_components
-    }
+    # Create a string representation of detected components for the LLM
+    components_str = json.dumps(detected_components, indent=2)
+    
+    refine_prompt = f"""
+    {SYSTEM_PROMPT}
+    
+    TASK: Refine these raw computer-vision detected components into a clean wireframe.
+    - Fix alignment issues.
+    - Assign better component types if clear.
+    - Add reasonable props based on the component type.
+    - User's description of sketch: "{prompt}"
+    
+    RAW DETECTED COMPONENTS:
+    {components_str}
+    
+    OUTPUT JSON:
+    """
+    
+    print(f"Refining {len(detected_components)} components with LLM")
+    response_text = llm_client.generate(refine_prompt)
+    
+    try:
+        return parse_json(response_text)
+    except Exception as e:
+        print(f"Error refining components: {e}")
+        # Return basic structure with original detected components if LLM fails
+        return {
+            "id": "wf_cv_refined_fallback",
+            "name": "Sketch Wireframe (Unrefined)", 
+            "canvas_size": {"width": 1440, "height": 900},
+            "components": detected_components
+        }
 
 
 def update_with_gemini(current_wireframe: dict, instruction: str) -> dict:
     """
-    PLACEHOLDER: Replace with your actual Gemini update.
-
-    This should:
-    1. Take existing wireframe + user instruction
-    2. Gemini figures out what to change
-    3. Return updated wireframe JSON
+    Update existing wireframe based on instruction.
     """
-    # TODO: Implement Gemini update
-    return current_wireframe
-
-
-def scrape_similar_sites(query: str) -> dict:
+    current_json = json.dumps(current_wireframe, indent=2)
+    
+    update_prompt = f"""
+    {EDIT_SYSTEM_PROMPT}
+    
+    INSTRUCTION: {instruction}
+    
+    CURRENT WIREFRAME:
+    {current_json}
+    
+    UPDATED WIREFRAME JSON:
     """
-    PLACEHOLDER: Replace with your actual web scraper.
-
-    This should:
-    1. Extract keywords from query
-    2. Find similar websites
-    3. Scrape their structure
-    4. Return common UI patterns
-    """
-    # TODO: Implement web scraper
-    return {
-        "patterns": ["hero", "features", "footer"],
-        "sites_analyzed": 0
-    }
+    
+    print(f"Updating wireframe with instruction: {instruction}")
+    response_text = llm_client.generate(update_prompt)
+    
+    try:
+        return parse_json(response_text)
+    except Exception as e:
+        print(f"Error updating wireframe: {e}")
+        return current_wireframe
 
 
-# ============================================================================
-# MCP TOOLS (Athena AI calls these)
-# ============================================================================
+
+
+
+from scraper.scrape import scrape_similar_sites
 
 @app.tool()
 async def analyze_sketch(image_base64: str, prompt: str = "") -> dict:

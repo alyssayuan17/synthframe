@@ -5,22 +5,14 @@ from .wireframe import (
     ComponentType,
     Position,
     Size,
-    BoundingBox,
-    DetectedText,
-    WireframeComponent,
-    WireframeLayout,
-    CVDetectionResult,
-    COMPONENT_TEMPLATES
+    Component,
+    Wireframe
 )
 
 __all__ = [
     "ComponentType",
     "Position",
     "Size", 
-    "BoundingBox",
-    "DetectedText",
-    "WireframeComponent",
-    "WireframeLayout",
-    "CVDetectionResult",
-    "COMPONENT_TEMPLATES"
+    "Component",
+    "Wireframe"
 ]
