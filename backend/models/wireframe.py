@@ -199,3 +199,115 @@ class Wireframe(BaseModel):
     def to_json(self) -> dict:
         """Convert to JSON-serializable dict for React frontend"""
         return self.model_dump()
+
+
+# =============================================================================
+# ADDITIONAL MODELS FOR GEMINI/CV PIPELINE
+# =============================================================================
+
+class BoundingBox(BaseModel):
+    """Bounding box for detected shapes in CV pipeline."""
+    x: float = Field(description="Top-left X coordinate")
+    y: float = Field(description="Top-left Y coordinate")  
+    width: float = Field(description="Width in pixels")
+    height: float = Field(description="Height in pixels")
+    
+    @property
+    def center(self) -> tuple:
+        return (self.x + self.width / 2, self.y + self.height / 2)
+
+
+class DetectedText(BaseModel):
+    """Text detected via OCR in sketches."""
+    text: str = Field(description="The detected text content")
+    bounding_box: BoundingBox = Field(description="Where the text was found")
+    confidence: float = Field(default=0.0, description="OCR confidence 0-1")
+
+
+class WireframeComponent(BaseModel):
+    """
+    Component for WireframeLayout - matches Gemini output format.
+    Similar to Component but with additional fields for LLM pipeline.
+    """
+    id: str = Field(
+        default_factory=lambda: f"comp_{uuid.uuid4().hex[:8]}",
+        description="Unique identifier"
+    )
+    type: str = Field(description="Component type (NAVBAR, HERO, etc.)")
+    position: Position = Field(description="Position on canvas")
+    size: Size = Field(description="Width and height")
+    props: dict = Field(default_factory=dict, description="Component properties")
+    children: list = Field(default_factory=list, description="Nested components")
+    source: str = Field(default="llm", description="Where this came from: llm, cv, user")
+    confidence: Optional[float] = Field(default=None, description="Detection confidence")
+    order: Optional[int] = Field(default=None, description="Render order")
+
+
+class WireframeLayout(BaseModel):
+    """
+    Full wireframe layout - matches Gemini JSON output format.
+    This is the main model used by generation pipeline.
+    """
+    id: str = Field(
+        default_factory=lambda: f"layout_{uuid.uuid4().hex[:8]}",
+        description="Unique layout ID"
+    )
+    name: str = Field(default="Untitled", description="Layout name")
+    canvas_size: Size = Field(
+        default_factory=lambda: Size(width=1440, height=900),
+        description="Canvas dimensions"
+    )
+    background_color: str = Field(default="#ffffff", description="Background color")
+    source_type: str = Field(default="prompt", description="How it was created: prompt, sketch, mockup")
+    components: list[WireframeComponent] = Field(
+        default_factory=list,
+        description="All components in layout"
+    )
+    
+    def to_json(self) -> dict:
+        """Convert to JSON-serializable dict"""
+        return self.model_dump()
+
+
+class CVDetectionResult(BaseModel):
+    """Result from CV/OpenCV sketch analysis."""
+    components: list[WireframeComponent] = Field(
+        default_factory=list,
+        description="Detected components"
+    )
+    detected_text: list[DetectedText] = Field(
+        default_factory=list,
+        description="OCR results"
+    )
+    original_size: Size = Field(
+        default_factory=lambda: Size(width=0, height=0),
+        description="Original image dimensions"
+    )
+    debug_image_base64: Optional[str] = Field(
+        default=None,
+        description="Debug visualization as base64"
+    )
+    processing_notes: list[str] = Field(
+        default_factory=list,
+        description="Processing log"
+    )
+
+
+# Component templates for default props
+COMPONENT_TEMPLATES: dict = {
+    "NAVBAR": {"logo": "Logo", "links": ["Home", "About", "Contact"], "cta": "Sign Up"},
+    "HERO": {"headline": "Your Headline Here", "subheadline": "Supporting text", "cta": "Get Started"},
+    "SIDEBAR": {"items": ["Dashboard", "Settings", "Profile"]},
+    "CARD": {"title": "Card Title", "content": "Card content goes here"},
+    "BUTTON": {"label": "Button", "variant": "primary"},
+    "FORM": {"fields": [{"label": "Email", "type": "email"}], "submit": "Submit"},
+    "TABLE": {"columns": ["Name", "Email", "Status"], "rows": 5},
+    "CHART": {"type": "bar", "title": "Chart Title"},
+    "FOOTER": {"links": ["Privacy", "Terms", "Contact"], "copyright": "© 2024"},
+    "HEADING": {"text": "Heading", "level": 1},
+    "SECTION": {"title": "Section Title"},
+    "IMAGE": {"alt": "Image placeholder", "src": ""},
+    "CALENDAR": {"view": "month"},
+    "INPUT": {"placeholder": "Enter text...", "type": "text"},
+    "TEXT": {"content": "Text content here"},
+}

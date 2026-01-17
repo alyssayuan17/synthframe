@@ -7,6 +7,10 @@ from pydantic import BaseModel, Field
 from .wireframe import WireframeLayout
 
 
+# Valid device types for wireframe generation
+DeviceType = Literal["laptop", "desktop", "tablet", "tablet_landscape", "phone", "phone_small"]
+
+
 class ImageUploadRequest(BaseModel):
     """Request for image-based wireframe generation (CV pipeline)"""
     image_base64: str = Field(..., description="Base64 encoded image data")
@@ -17,6 +21,14 @@ class ImageUploadRequest(BaseModel):
     detect_text: bool = Field(default=True, description="Whether to run OCR")
     min_component_area: int = Field(default=500, description="Minimum area for component detection")
     name: str = Field(default="Untitled Wireframe", description="Name for the wireframe")
+    device_type: Optional[DeviceType] = Field(
+        default=None,
+        description="Target device type (laptop, tablet, phone). Defaults to laptop."
+    )
+    use_gemini_refinement: bool = Field(
+        default=True,
+        description="Whether to use Gemini to refine CV-detected components"
+    )
 
 
 class TextPromptRequest(BaseModel):
@@ -37,6 +49,10 @@ class GenerateRequest(BaseModel):
         default=None, 
         description="Whether to scrape web for context. None = use default setting"
     )
+    device_type: Optional[DeviceType] = Field(
+        default=None,
+        description="Target device type (laptop, tablet, phone). Defaults to laptop."
+    )
 
 
 class EditWireframeRequest(BaseModel):
@@ -45,12 +61,20 @@ class EditWireframeRequest(BaseModel):
     instruction: str = Field(..., description="Edit instruction in natural language")
     webscraper_context: Optional[str] = Field(default=None)
     use_scraper: Optional[bool] = Field(default=None)
+    device_type: Optional[DeviceType] = Field(
+        default=None,
+        description="Target device type for edited wireframe"
+    )
 
 
 class ScrapeRequest(BaseModel):
     """Debug endpoint to test webscraper"""
     query: str = Field(..., description="Search query for scraper")
     max_pages: Optional[int] = Field(default=None, description="Override max pages to scrape")
+    device_type: Optional[DeviceType] = Field(
+        default=None,
+        description="Include device-specific patterns in search"
+    )
 
 
 class EditRequest(BaseModel):
