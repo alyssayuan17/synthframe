@@ -18,6 +18,10 @@ def scrape_context(user_input: str, max_pages: Optional[int] = None) -> str:
     pages = client.scrape(user_input, max_pages=policies.max_pages, timeout_s=policies.timeout_s)
 
     # (Optional) enforce allowlist if your scraper returns URLs
-    filtered = [p for p in pages if policies.domain_allowed(p.get("url", ""))]
+    # Allow pre-populated patterns through (they have "pre-populated" in URL)
+    filtered = [
+        p for p in pages 
+        if policies.domain_allowed(p.get("url", "")) or "pre-populated" in p.get("url", "")
+    ]
 
     return build_web_context(filtered)
