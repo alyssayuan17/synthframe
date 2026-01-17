@@ -1,8 +1,8 @@
-import Landing from './pages/Landing/Landing'
+import Sketchpad from './pages/Sketchpad/Sketchpad'
 
 function App() {
   return (
-    <Landing />
+    <Sketchpad />
   )
 }
 
