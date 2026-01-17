@@ -34,7 +34,11 @@ import uuid
 class ComponentType(str, Enum):
     """
     All possible component types we can detect from sketches or generate via LLM.
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 6723849c3c671559b37a8e912e215cfb9992c562
     When adding new types:
     1. Add here
     2. Update CV shape mapping in vision/detect.py
@@ -79,12 +83,20 @@ class Size(BaseModel):
 class Component(BaseModel):
     """
     A single UI component in the wireframe.
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 6723849c3c671559b37a8e912e215cfb9992c562
     This is the core data structure that:
     - CV/OpenCV outputs when detecting shapes in sketches
     - Gemini outputs when generating layouts
     - React frontend receives to render on canvas
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 6723849c3c671559b37a8e912e215cfb9992c562
     Example:
         {
             "id": "comp_abc123",
@@ -132,7 +144,11 @@ class LayoutType(str, Enum):
 class Wireframe(BaseModel):
     """
     Complete wireframe containing multiple components.
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 6723849c3c671559b37a8e912e215cfb9992c562
     This is what gets sent to React frontend:
         {
             "id": "wf_xyz789",
@@ -166,11 +182,19 @@ class Wireframe(BaseModel):
         default_factory=list,
         description="All components in this wireframe"
     )
+<<<<<<< HEAD
 
     def add_component(self, component: Component) -> None:
         """Add a component to the wireframe"""
         self.components.append(component)
 
+=======
+    
+    def add_component(self, component: Component) -> None:
+        """Add a component to the wireframe"""
+        self.components.append(component)
+    
+>>>>>>> 6723849c3c671559b37a8e912e215cfb9992c562
     def remove_component(self, component_id: str) -> bool:
         """Remove component by ID, returns True if found"""
         for i, comp in enumerate(self.components):
@@ -178,14 +202,22 @@ class Wireframe(BaseModel):
                 self.components.pop(i)
                 return True
         return False
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 6723849c3c671559b37a8e912e215cfb9992c562
     def get_component(self, component_id: str) -> Optional[Component]:
         """Get component by ID"""
         for comp in self.components:
             if comp.id == component_id:
                 return comp
         return None
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 6723849c3c671559b37a8e912e215cfb9992c562
     def to_json(self) -> dict:
         """Convert to JSON-serializable dict for React frontend"""
         return self.model_dump()
