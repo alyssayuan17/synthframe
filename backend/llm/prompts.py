@@ -186,21 +186,21 @@ DETECTED SHAPES:
 {{detected_shapes}}
 
 Return a JSON object with:
-{{
+{{{{
   "components": [
-    {{
+    {{{{
       "id": "comp_xxx",
       "type": "COMPONENT_TYPE",
-      "position": {{"x": number, "y": number}},
-      "size": {{"width": number, "height": number}},
-      "props": {{...}},
+      "position": {{{{"x": number, "y": number}}}},
+      "size": {{{{"width": number, "height": number}}}},
+      "props": {{{{...}}}},
       "source": "cv",
       "confidence": 0.0-1.0
-    }}
+    }}}}
   ],
   "suggested_additions": ["FOOTER", ...],  // Components you think are missing
   "layout_notes": "Brief description of detected layout pattern"
-}}
+}}}}
 """
 
 
