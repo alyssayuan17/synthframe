@@ -54,8 +54,9 @@ class Settings(BaseSettings):
     # ===========================================
     # WIREFRAME DEFAULTS
     # ===========================================
-    default_canvas_width: int = 1200
-    default_canvas_height: int = 800
+    default_canvas_width: int = 1440
+    default_canvas_height: int = 900
+    default_device_type: str = "laptop"
     
     # ===========================================
     # LLM SETTINGS
@@ -86,6 +87,24 @@ SCRAPER_MAX_PAGES: int = 3
 SCRAPER_TIMEOUT_S: float = 10.0
 SCRAPER_ALLOWLIST: list = ["dribbble.com", "behance.net", "awwwards.com"]
 ENABLE_SCRAPER_DEFAULT: bool = True
+
+
+# ===========================================
+# DEVICE TYPE CANVAS SIZES
+# ===========================================
+# Canvas dimensions for different device types
+# Used by both CV pipeline and Gemini generation
+DEVICE_CANVAS_SIZES: dict = {
+    "laptop": {"width": 1440, "height": 900},
+    "desktop": {"width": 1920, "height": 1080},
+    "tablet": {"width": 768, "height": 1024},
+    "tablet_landscape": {"width": 1024, "height": 768},
+    "phone": {"width": 375, "height": 812},
+    "phone_small": {"width": 320, "height": 568},
+}
+
+# Default device type if not specified
+DEFAULT_DEVICE_TYPE: str = "laptop"
 
 
 # ===========================================
