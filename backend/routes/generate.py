@@ -24,6 +24,7 @@ async def generate(request: GenerateRequest):
     - **user_input**: Description like "create a SaaS dashboard" or "make a login page"
     - **webscraper_context**: Optional pre-fetched context (e.g., "like Airbnb")
     - **use_scraper**: If True, scrape web for design patterns. Default from config.
+    - **device_type**: Target device (laptop, tablet, phone). Defaults to laptop.
     
     Returns a WireframeLayout with pixel-based positioning (same format as CV pipeline).
     """
@@ -32,6 +33,7 @@ async def generate(request: GenerateRequest):
             user_input=request.user_input,
             webscraper_context=request.webscraper_context,
             use_scraper=request.use_scraper,
+            device_type=request.device_type,
         )
         
         return GenerateResponse(

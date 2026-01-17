@@ -25,6 +25,7 @@ async def edit(request: EditWireframeRequest):
     - **instruction**: Edit instruction like "add a settings tab" or "move sidebar to right"
     - **webscraper_context**: Optional context for design patterns
     - **use_scraper**: Whether to scrape web for context
+    - **device_type**: Target device for the edited wireframe
     
     Returns a FULL REPLACEMENT wireframe (not a patch).
     """
@@ -34,6 +35,7 @@ async def edit(request: EditWireframeRequest):
             instruction=request.instruction,
             webscraper_context=request.webscraper_context,
             use_scraper=request.use_scraper,
+            device_type=request.device_type,
         )
         
         return EditWireframeResponse(
