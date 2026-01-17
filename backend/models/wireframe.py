@@ -1,247 +1,191 @@
 """
-Wireframe Component Schema - The standard format for all UI components.
-This is what the CV/Image processing outputs and what the frontend expects.
+Wireframe Component Models
+==========================
+
+These Pydantic models define the structure of UI components that flow through the system:
+
+    CV/OpenCV → Component JSON → React Frontend
+    Gemini    → Component JSON → React Frontend
+
+Your teammate's React frontend will receive these JSON structures and render them.
+
+COMPONENT TYPES (what we can detect/generate):
+- NAVBAR: Navigation bar at top
+- HERO: Large banner section with headline
+- SECTION: Generic content section
+- CARD: Content card (often in grids)
+- FORM: Input form with fields
+- BUTTON: Clickable button
+- TEXT: Text block/paragraph
+- IMAGE: Image placeholder
+- SIDEBAR: Vertical navigation
+- FOOTER: Bottom section
+- TABLE: Data table
+- CALENDAR: Calendar widget
+- CHART: Chart/graph placeholder
 """
-from typing import List, Optional, Dict, Any, Literal
+
+from typing import Optional, Literal
 from pydantic import BaseModel, Field
 from enum import Enum
+import uuid
 
 
 class ComponentType(str, Enum):
-    """All supported wireframe component types"""
-    # Layout Components
-    CONTAINER = "container"
-    ROW = "row"
-    COLUMN = "column"
-    GRID = "grid"
+    """
+    All possible component types we can detect from sketches or generate via LLM.
     
-    # Navigation
-    NAVBAR = "navbar"
-    SIDEBAR = "sidebar"
-    FOOTER = "footer"
-    BREADCRUMB = "breadcrumb"
-    TABS = "tabs"
-    
-    # Content
-    HEADING = "heading"
-    PARAGRAPH = "paragraph"
-    IMAGE = "image"
-    ICON = "icon"
-    DIVIDER = "divider"
-    CARD = "card"
-    
-    # Interactive
-    BUTTON = "button"
-    LINK = "link"
-    INPUT = "input"
-    TEXTAREA = "textarea"
-    SELECT = "select"
-    CHECKBOX = "checkbox"
-    RADIO = "radio"
-    TOGGLE = "toggle"
-    SLIDER = "slider"
-    
-    # Forms
-    FORM = "form"
-    LOGIN_FORM = "login_form"
-    SIGNUP_FORM = "signup_form"
-    SEARCH_BAR = "search_bar"
-    
-    # Data Display
-    TABLE = "table"
-    LIST = "list"
-    CALENDAR = "calendar"
-    CHART = "chart"
-    PROGRESS_BAR = "progress_bar"
-    BADGE = "badge"
-    AVATAR = "avatar"
-    
-    # Feedback
-    MODAL = "modal"
-    TOAST = "toast"
-    TOOLTIP = "tooltip"
-    ALERT = "alert"
-    
-    # Unknown/Generic
-    BOX = "box"
-    TEXT = "text"
-    UNKNOWN = "unknown"
+    When adding new types:
+    1. Add here
+    2. Update CV shape mapping in vision/detect.py
+    3. Update LLM prompts in llm/prompts.py
+    4. Tell your teammate to add React component
+    """
+    NAVBAR = "NAVBAR"
+    HERO = "HERO"
+    SECTION = "SECTION"
+    CARD = "CARD"
+    FORM = "FORM"
+    BUTTON = "BUTTON"
+    TEXT = "TEXT"
+    IMAGE = "IMAGE"
+    SIDEBAR = "SIDEBAR"
+    FOOTER = "FOOTER"
+    TABLE = "TABLE"
+    CALENDAR = "CALENDAR"
+    CHART = "CHART"
+    INPUT = "INPUT"
+    HEADING = "HEADING"
 
 
 class Position(BaseModel):
-    """Position of a component on the canvas"""
-    x: float = Field(..., description="X coordinate (pixels from left)")
-    y: float = Field(..., description="Y coordinate (pixels from top)")
+    """
+    Position on the canvas (in pixels from top-left).
+    React frontend will use these for absolute positioning or grid placement.
+    """
+    x: float = Field(description="Pixels from left edge")
+    y: float = Field(description="Pixels from top edge")
 
 
 class Size(BaseModel):
-    """Size of a component"""
-    width: float = Field(..., description="Width in pixels or percentage")
-    height: float = Field(..., description="Height in pixels or percentage")
-
-
-class BoundingBox(BaseModel):
-    """Bounding box detected from CV"""
-    x: float
-    y: float
-    width: float
-    height: float
-    confidence: float = Field(default=1.0, ge=0, le=1)
-
-
-class DetectedText(BaseModel):
-    """Text detected within a component"""
-    content: str
-    bounding_box: BoundingBox
-    confidence: float = Field(default=1.0, ge=0, le=1)
-
-
-class WireframeComponent(BaseModel):
-    """A single UI component in the wireframe"""
-    id: str = Field(..., description="Unique identifier for the component")
-    type: ComponentType = Field(..., description="Type of UI component")
-    position: Position = Field(..., description="Position on canvas")
-    size: Size = Field(..., description="Size of component")
-    props: Dict[str, Any] = Field(default_factory=dict, description="Component-specific properties")
-    children: List[str] = Field(default_factory=list, description="IDs of child components")
-    detected_text: Optional[str] = Field(default=None, description="Text detected in this component")
-    confidence: float = Field(default=1.0, ge=0, le=1, description="Detection confidence")
-    source: Literal["cv", "llm", "user"] = Field(default="cv", description="How this component was created")
-
-
-class WireframeLayout(BaseModel):
-    """Complete wireframe layout with all components"""
-    id: str = Field(..., description="Unique layout identifier")
-    name: str = Field(default="Untitled Wireframe")
-    canvas_size: Size = Field(..., description="Total canvas dimensions")
-    background_color: str = Field(default="#ffffff")
-    components: List[WireframeComponent] = Field(default_factory=list)
-    
-    # Metadata
-    source_type: Literal["sketch", "mockup", "prompt", "manual"] = Field(default="sketch")
-    original_image_path: Optional[str] = None
-    created_at: Optional[str] = None
-
-
-class CVDetectionResult(BaseModel):
-    """Raw output from CV detection before component classification"""
-    bounding_boxes: List[BoundingBox] = Field(default_factory=list)
-    detected_texts: List[DetectedText] = Field(default_factory=list)
-    image_dimensions: Size
-    processing_time_ms: float = 0
-
-
-# Component templates with default properties
-COMPONENT_TEMPLATES: Dict[ComponentType, Dict[str, Any]] = {
-    ComponentType.NAVBAR: {
-        "default_size": {"width": "100%", "height": 64},
-        "props": {"logo": "Logo", "links": ["Home", "About", "Contact"]}
-    },
-    ComponentType.BUTTON: {
-        "default_size": {"width": 120, "height": 40},
-        "props": {"label": "Button", "variant": "primary"}
-    },
-    ComponentType.HEADING: {
-        "default_size": {"width": 300, "height": 40},
-        "props": {"text": "Heading", "level": 1}
-    },
-    ComponentType.INPUT: {
-        "default_size": {"width": 250, "height": 40},
-        "props": {"placeholder": "Enter text...", "type": "text"}
-    },
-    ComponentType.CARD: {
-        "default_size": {"width": 300, "height": 200},
-        "props": {"title": "Card Title", "content": "Card content goes here"}
-    },
-    ComponentType.IMAGE: {
-        "default_size": {"width": 200, "height": 150},
-        "props": {"alt": "Image", "src": ""}
-    },
-    ComponentType.CALENDAR: {
-        "default_size": {"width": 300, "height": 300},
-        "props": {"view": "month"}
-    },
-    ComponentType.TABLE: {
-        "default_size": {"width": 500, "height": 300},
-        "props": {"columns": ["Column 1", "Column 2", "Column 3"], "rows": 5}
-    },
-    ComponentType.CHART: {
-        "default_size": {"width": 400, "height": 300},
-        "props": {"type": "bar", "title": "Chart"}
-    },
-    ComponentType.LOGIN_FORM: {
-        "default_size": {"width": 350, "height": 300},
-        "props": {"fields": ["email", "password"], "submit_label": "Login"}
-    },
-    ComponentType.SIDEBAR: {
-        "default_size": {"width": 250, "height": "100%"},
-        "props": {"items": ["Dashboard", "Settings", "Profile"]}
-    },
-    ComponentType.FOOTER: {
-        "default_size": {"width": "100%", "height": 80},
-        "props": {"copyright": "© 2025", "links": ["Privacy", "Terms"]}
-    }
-}
-
-
-# =============================================================================
-# LLM-GENERATED WIREFRAME SCHEMA (12-column grid)
-# Coexists with the CV-based WireframeLayout above
-# =============================================================================
-
-class GridPosition(BaseModel):
-    """12-column grid position for LLM-generated components"""
-    row: int = 0
-    col: int = Field(ge=0, lt=12, default=0)
-    colSpan: int = Field(ge=1, le=12, default=12)
-
-
-class Layout(BaseModel):
-    """Layout configuration for wireframe document"""
-    type: Literal["full-width", "sidebar-main", "dashboard", "landing", "form-page"]
-    direction: str = "horizontal"
-
-
-class Theme(BaseModel):
-    """Theme configuration"""
-    style: str = "modern"
-    primaryColor: str = "#6366f1"
-
-
-class Endpoint(BaseModel):
-    """Connection endpoint reference"""
-    componentId: str
-    anchor: Literal["top", "right", "bottom", "left"]
-
-
-class Connection(BaseModel):
-    """Connection between components (for interaction flows)"""
-    id: str = ""
-    from_: Endpoint = Field(alias="from")
-    to: Endpoint
-    type: Literal["triggers", "navigates", "links", "opens", "submits"]
-    label: str = ""
-
-    class Config:
-        populate_by_name = True
+    """
+    Dimensions of a component.
+    Can be pixels or percentage strings like "100%" for full width.
+    """
+    width: float | str = Field(description="Width in pixels or '100%'")
+    height: float | str = Field(description="Height in pixels or 'auto'")
 
 
 class Component(BaseModel):
-    """LLM-generated component using 12-column grid positioning"""
-    id: str = ""
-    type: str
-    position: Optional[GridPosition] = None
-    props: Dict[str, Any] = Field(default_factory=dict)
-    children: List["Component"] = Field(default_factory=list)
+    """
+    A single UI component in the wireframe.
+    
+    This is the core data structure that:
+    - CV/OpenCV outputs when detecting shapes in sketches
+    - Gemini outputs when generating layouts
+    - React frontend receives to render on canvas
+    
+    Example:
+        {
+            "id": "comp_abc123",
+            "type": "NAVBAR",
+            "position": {"x": 0, "y": 0},
+            "size": {"width": "100%", "height": 60},
+            "props": {
+                "logo": "My App",
+                "links": ["Home", "About", "Contact"]
+            },
+            "confidence": 0.95  # If detected by CV
+        }
+    """
+    id: str = Field(
+        default_factory=lambda: f"comp_{uuid.uuid4().hex[:8]}",
+        description="Unique identifier for this component"
+    )
+    type: ComponentType = Field(description="Type of UI component")
+    position: Position = Field(description="Where on canvas")
+    size: Size = Field(description="Width and height")
+    props: dict = Field(
+        default_factory=dict,
+        description="Component-specific properties (text, colors, etc)"
+    )
+    confidence: Optional[float] = Field(
+        default=None,
+        description="CV detection confidence (0-1), None if generated by LLM"
+    )
+    z_index: int = Field(
+        default=0,
+        description="Stacking order for overlapping components"
+    )
 
 
-# Enable forward reference for nested children
-Component.model_rebuild()
+class LayoutType(str, Enum):
+    """Layout arrangement for the wireframe"""
+    SINGLE_COLUMN = "single-column"
+    TWO_COLUMN = "two-column"
+    SIDEBAR_LEFT = "sidebar-left"
+    SIDEBAR_RIGHT = "sidebar-right"
+    GRID = "grid"
+    FREEFORM = "freeform"
 
 
-class WireframeDoc(BaseModel):
-    """Complete wireframe document from LLM text-to-wireframe generation"""
-    layout: Layout
-    components: List[Component] = Field(default_factory=list)
-    connections: List[Connection] = Field(default_factory=list)
-    theme: Optional[Theme] = None
+class Wireframe(BaseModel):
+    """
+    Complete wireframe containing multiple components.
+    
+    This is what gets sent to React frontend:
+        {
+            "id": "wf_xyz789",
+            "name": "Student Club Landing",
+            "layout": "single-column",
+            "canvas_size": {"width": 1200, "height": 800},
+            "components": [
+                {"id": "comp_1", "type": "NAVBAR", ...},
+                {"id": "comp_2", "type": "HERO", ...},
+                ...
+            ]
+        }
+    """
+    id: str = Field(
+        default_factory=lambda: f"wf_{uuid.uuid4().hex[:8]}",
+        description="Unique wireframe ID"
+    )
+    name: str = Field(
+        default="Untitled Wireframe",
+        description="Human-readable name"
+    )
+    layout: LayoutType = Field(
+        default=LayoutType.SINGLE_COLUMN,
+        description="Overall layout arrangement"
+    )
+    canvas_size: Size = Field(
+        default_factory=lambda: Size(width=1200, height=800),
+        description="Canvas dimensions"
+    )
+    components: list[Component] = Field(
+        default_factory=list,
+        description="All components in this wireframe"
+    )
+    
+    def add_component(self, component: Component) -> None:
+        """Add a component to the wireframe"""
+        self.components.append(component)
+    
+    def remove_component(self, component_id: str) -> bool:
+        """Remove component by ID, returns True if found"""
+        for i, comp in enumerate(self.components):
+            if comp.id == component_id:
+                self.components.pop(i)
+                return True
+        return False
+    
+    def get_component(self, component_id: str) -> Optional[Component]:
+        """Get component by ID"""
+        for comp in self.components:
+            if comp.id == component_id:
+                return comp
+        return None
+    
+    def to_json(self) -> dict:
+        """Convert to JSON-serializable dict for React frontend"""
+        return self.model_dump()
