@@ -1,4 +1,4 @@
-"""
+r"""
 Test Gemini LLM Client
 
 Quick test to verify the Gemini integration works correctly.
