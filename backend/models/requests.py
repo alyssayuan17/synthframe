@@ -57,6 +57,7 @@ class GenerateRequest(BaseModel):
 
 class EditWireframeRequest(BaseModel):
     """Request to edit existing wireframe (full replacement)"""
+    project_id: Optional[str] = Field(None, description="Optional project ID to update")
     wireframe_layout: WireframeLayout = Field(..., description="Current wireframe layout")
     instruction: str = Field(..., description="Edit instruction in natural language")
     webscraper_context: Optional[str] = Field(default=None)
