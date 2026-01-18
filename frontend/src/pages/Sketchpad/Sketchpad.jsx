@@ -206,6 +206,34 @@ const Sketchpad = () => {
         };
     };
 
+    // Helper to flatten components with children into a flat array
+    const flattenComponents = (components, parentPosition = { x: 0, y: 0 }) => {
+        const flattened = [];
+
+        components.forEach((comp, index) => {
+            // Add the parent component
+            const node = transformBackendComponentToNode(comp, index);
+            flattened.push(node);
+
+            // If it has children, flatten them recursively
+            if (comp.children && Array.isArray(comp.children) && comp.children.length > 0) {
+                comp.children.forEach((child, childIndex) => {
+                    const childNode = transformBackendComponentToNode(child, index * 100 + childIndex);
+                    // Adjust child position to be absolute (add parent position)
+                    if (comp.position && child.position) {
+                        childNode.position = {
+                            x: comp.position.x + child.position.x,
+                            y: comp.position.y + child.position.y
+                        };
+                    }
+                    flattened.push(childNode);
+                });
+            }
+        });
+
+        return flattened;
+    };
+
     // ===================================
     // CONNNECTION TO BACKEND (Athena AI)
     // ===================================
@@ -226,9 +254,9 @@ const Sketchpad = () => {
                         const detail = await detailRes.json();
 
                         if (detail && detail.components) {
-                            // Transform backend components to frontend nodes
-                            const transformedNodes = detail.components.map(transformBackendComponentToNode);
-                            console.log("Transformed nodes:", transformedNodes);
+                            // Flatten nested children and transform backend components to frontend nodes
+                            const transformedNodes = flattenComponents(detail.components);
+                            console.log("Transformed and flattened nodes:", transformedNodes);
                             setNodes(transformedNodes);
                             setCurrentWireframeId(latest.id);
                             lastSyncedRef.current = latest.last_modified || Date.now() / 1000;
