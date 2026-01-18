@@ -3,6 +3,7 @@ import TopNavigation from '../../components/TopNavigation';
 import LeftSidebar from '../../components/LeftSidebar';
 import InfiniteCanvas from '../../components/InfiniteCanvas';
 import RightSidebar from '../../components/RightSidebar';
+import SaveDialog from '../../components/SaveDialog';
 import './Sketchpad.css';
 
 const Sketchpad = () => {
@@ -10,6 +11,12 @@ const Sketchpad = () => {
     const [leftCollapsed, setLeftCollapsed] = useState(false);
     const [rightCollapsed, setRightCollapsed] = useState(false);
     const [selectedNodeId, setSelectedNodeId] = useState(null);
+    const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+
+    const handleSaveProject = (projectName) => {
+        console.log('Saving project:', projectName);
+        // TODO: Implement actual save logic
+    };
 
     const getDefaultSize = (type) => {
         if (type === 'macbook-frame') {
@@ -254,7 +261,12 @@ const Sketchpad = () => {
 
     return (
         <div className="sketchpad">
-            <TopNavigation />
+            <TopNavigation onSave={() => setSaveDialogOpen(true)} />
+            <SaveDialog 
+                isOpen={saveDialogOpen} 
+                onClose={() => setSaveDialogOpen(false)}
+                onSave={handleSaveProject}
+            />
             <div className={getContentClassName()}>
                 <LeftSidebar />
                 <InfiniteCanvas

@@ -535,8 +535,6 @@ export const COMPONENT_REGISTRY = {
     'badge-group': BadgeGroup,
     'progress': ProgressBar,
     'radial-progress': RadialProgress,
-    'progress': ProgressBar,
-    'radial-progress': RadialProgress,
     'stats': StatsComponent,
     'calendar': CalendarComponent,
     'pricing': PricingComponent,
