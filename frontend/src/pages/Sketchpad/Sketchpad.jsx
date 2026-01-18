@@ -4,6 +4,7 @@ import LeftSidebar from '../../components/LeftSidebar';
 import InfiniteCanvas from '../../components/InfiniteCanvas';
 import RightSidebar from '../../components/RightSidebar';
 import { isFrameType as checkIsFrame } from '../../utils/componentTypes';
+import SaveDialog from '../../components/SaveDialog';
 import './Sketchpad.css';
 
 const Sketchpad = () => {
@@ -333,7 +334,12 @@ const Sketchpad = () => {
 
     return (
         <div className="sketchpad">
-            <TopNavigation />
+            <TopNavigation onSave={() => setSaveDialogOpen(true)} />
+            <SaveDialog 
+                isOpen={saveDialogOpen} 
+                onClose={() => setSaveDialogOpen(false)}
+                onSave={handleSaveProject}
+            />
             <div className={getContentClassName()}>
                 <LeftSidebar />
                 <InfiniteCanvas
