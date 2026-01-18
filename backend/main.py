@@ -16,7 +16,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.routes import health, generate, edit, scrape, vision, critique, hybrid, projects
-from backend.routes import health, generate, edit, scrape, vision, critique, hybrid
 from backend.config import settings
 from backend.database import close_mongo_connection, ping_database
 
@@ -32,7 +31,6 @@ app = FastAPI(
     ## Features
     - **Text → Wireframe**: Describe a UI and get a wireframe
     - **Sketch → Wireframe**: Upload a hand-drawn sketch
-    - **Text + Sketch → Wireframe**: Combine both for best results (NEW!)
     - **Text + Sketch → Wireframe**: Combine both for best results (NEW!)
     - **Edit**: Modify wireframes with natural language
     - **Projects**: Save, load, and manage wireframe projects (MongoDB)
@@ -87,28 +85,10 @@ app.include_router(critique.router)
 # Hybrid text + image generation
 app.include_router(hybrid.router)
 
-# =============================================================================
-# ROOT ENDPOINT
-# =============================================================================
+# Project management (save, load, list)
+app.include_router(projects.router)
 
-@app.get("/")
-async def root():
-    """API root - returns basic info"""
-    return {
-        "name": "SynthFrame API",
-        "version": "0.1.0",
-        "status": "running",
-        "docs": "/docs",
-        "endpoints": {
-            "health": "GET /health",
-            "generate": "POST /generate",
-            "edit": "POST /edit",
-            "hybrid": "POST /hybrid",
-            "scrape": "POST /scrape",
-            "vision": "POST /vision/analyze",
-            "critique": "POST /critique",
-        }
-    }
+
 
 
 # =============================================================================

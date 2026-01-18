@@ -49,6 +49,47 @@ class RenameRequest(BaseModel):
 
 
 # =============================================================================
+# CREATE PROJECT
+# =============================================================================
+
+class CreateProjectRequest(BaseModel):
+    """Request body for creating a new project"""
+    name: str = Field(..., description="Project name")
+    wireframe: WireframeLayout = Field(..., description="Wireframe layout data")
+    generation_method: str = Field("manual", description="How it was created")
+    device_type: str = Field("macbook", description="Target device")
+    original_prompt: Optional[str] = Field(None, description="Original prompt if any")
+
+
+@router.post(
+    "",
+    response_model=Project,
+    summary="Create new project"
+)
+async def create_new_project(request: CreateProjectRequest):
+    """
+    Create a new project (explicitly save to gallery).
+    
+    The frontend calls this when user clicks "Save" button.
+    """
+    try:
+        from backend.database.operations import create_project
+        
+        project = await create_project(
+            wireframe=request.wireframe,
+            name=request.name,
+            generation_method=request.generation_method,
+            device_type=request.device_type,
+            original_prompt=request.original_prompt
+        )
+        
+        return project
+        
+    except DatabaseError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# =============================================================================
 # LIST PROJECTS
 # =============================================================================
 

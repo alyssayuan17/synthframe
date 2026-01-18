@@ -13,9 +13,55 @@ const Sketchpad = () => {
     const [rightCollapsed, setRightCollapsed] = useState(false);
     const [selectedNodeId, setSelectedNodeId] = useState(null);
     const [currentWireframeId, setCurrentWireframeId] = useState(null);
+    const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
     // Athena AI widget handles chat - loaded via script in index.html
     // Canvas updates will come from Athena via window events (see useEffect below)
+
+    // Handle save project to MongoDB
+    const handleSaveProject = async (projectName) => {
+        try {
+            // Convert current canvas to WireframeLayout format
+            const wireframeLayout = {
+                name: projectName,
+                canvas_size: { width: 1440, height: 900 }, // Default MacBook size
+                components: nodes.map(node => ({
+                    id: node.id.toString(),
+                    type: node.type.toUpperCase().replace('-', '_'),
+                    position: { x: node.position.x, y: node.position.y },
+                    size: { width: node.size?.width || 200, height: node.size?.height || 100 },
+                    props: {},
+                    source: "manual",
+                    confidence: 1.0
+                }))
+            };
+
+            // Create new project via /projects endpoint
+            const response = await fetch('http://localhost:8000/projects', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: projectName,
+                    wireframe: wireframeLayout,
+                    generation_method: "manual",
+                    device_type: "macbook"
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setCurrentWireframeId(data._id);
+                console.log('Project saved successfully:', data._id);
+                alert(`✅ Project "${projectName}" saved to gallery!`);
+            } else {
+                console.error('Save failed:', await response.text());
+                alert('Failed to save project');
+            }
+        } catch (error) {
+            console.error('Error saving project:', error);
+            alert('Error saving project');
+        }
+    };
 
     // Listen for wireframe updates from Athena AI
     React.useEffect(() => {
@@ -335,8 +381,8 @@ const Sketchpad = () => {
     return (
         <div className="sketchpad">
             <TopNavigation onSave={() => setSaveDialogOpen(true)} />
-            <SaveDialog 
-                isOpen={saveDialogOpen} 
+            <SaveDialog
+                isOpen={saveDialogOpen}
                 onClose={() => setSaveDialogOpen(false)}
                 onSave={handleSaveProject}
             />
