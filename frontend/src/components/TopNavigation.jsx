@@ -1,13 +1,14 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const TopNavigation = () => {
     return (
         <div className="top-navigation">
             <div className="nav-left">
-                <h1 className="brand">
+                <Link to="/" className="brand">
                     <img src="/synthframe logo.svg" alt="SynthFrame Logo" className="brand-logo" />
                     SynthFrame
-                </h1>
+                </Link>
             </div>
 
             <div className="nav-center"></div>

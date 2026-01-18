@@ -60,6 +60,13 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    color: var(--color-white);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.brand:hover {
+    color: var(--color-slate-400);
 }
 
 .brand-logo {
