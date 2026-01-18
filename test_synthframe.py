@@ -399,6 +399,133 @@ def test_device_types() -> bool:
     return all_passed
 
 
+def test_hybrid_pipeline(device_type=None):
+    """
+    Test hybrid text + image pipeline.
+    
+    Tests the multi-level fallback strategy:
+    1. CV + Text refinement (best case)
+    2. CV only (if refinement fails)
+    3. Text only (if CV fails)
+    4. Device default (if everything fails)
+    """
+    print_header(f"HYBRID PIPELINE TEST (device: {device_type or 'macbook'})")
+    
+    all_passed = True
+    
+    # Import hybrid module
+    try:
+        from backend.generation.hybrid import generate_from_text_and_image
+        print_result("Import hybrid module", True)
+    except Exception as e:
+        print_result("Import hybrid module", False, str(e))
+        return False
+    
+    # Create test sketch and text
+    try:
+        import cv2
+        import numpy as np
+        
+        # Create a simple sketch matching the text description
+        canvas_height = 900
+        canvas_width = 1440
+        img = np.ones((canvas_height, canvas_width, 3), dtype=np.uint8) * 255
+        
+        # Draw navbar (top rectangle)
+        cv2.rectangle(img, (0, 0), (canvas_width, 64), (100, 100, 100), 2)
+        
+        # Draw sidebar (left rectangle)
+        cv2.rectangle(img, (0, 64), (240, canvas_height), (100, 100, 100), 2)
+        
+        # Draw 3 card boxes (middle area)
+        cv2.rectangle(img, (260, 100), (560, 300), (100, 100, 100), 2)
+        cv2.rectangle(img, (580, 100), (880, 300), (100, 100, 100), 2)
+        cv2.rectangle(img, (900, 100), (1200, 300), (100, 100, 100), 2)
+        
+        # Encode to bytes
+        _, buffer = cv2.imencode('.png', img)
+        image_bytes = buffer.tobytes()
+        
+        text_description = "A dashboard with a sidebar for navigation and three analytics cards showing metrics"
+        
+        print_result("Create test sketch + text", True)
+        print(f"         Text: {text_description[:50]}...")
+        print(f"         Image: {len(image_bytes)} bytes")
+        
+    except Exception as e:
+        print_result("Create test sketch + text", False, str(e))
+        return False
+    
+    # Test hybrid generation
+    try:
+        layout = generate_from_text_and_image(
+            user_text=text_description,
+            image_data=image_bytes,
+            device_type=device_type
+        )
+        
+        passed = layout is not None
+        print_result("Generate from text + image", passed)
+        
+        if passed:
+            print(f"         Generated: {len(layout.components)} components")
+            print(f"         Source: {layout.source_type}")
+            
+            # Verify source type is either 'hybrid', 'sketch', 'prompt', or 'prompt' (fallback)
+            valid_sources = ['hybrid', 'sketch', 'prompt']
+            source_valid = layout.source_type in valid_sources
+            print_result("Source type is valid", source_valid)
+            all_passed = all_passed and source_valid
+            
+            # Verify components
+            has_components = len(layout.components) > 0
+            print_result("Has components", has_components)
+            all_passed = all_passed and has_components
+            
+            # Check if we got hybrid merging (best case)
+            if layout.source_type == "hybrid":
+                print(f"         ✨ Hybrid merging successful!")
+                # Verify component sources
+                hybrid_sources = [c.source for c in layout.components if hasattr(c, 'source')]
+                print(f"         Component sources: {set(hybrid_sources)}")
+            elif layout.source_type == "sketch":
+                print(f"         ⚠️  CV-only fallback (refinement may have failed)")
+            elif layout.source_type == "prompt":
+                print(f"         ⚠️  Text-only fallback (CV may have failed)")
+            
+        else:
+            all_passed = False
+            
+    except Exception as e:
+        print_result("Generate from text + image", False, str(e))
+        all_passed = False
+    
+    # Test with text-only (CV failure scenario)
+    print("\n  [Testing CV Failure Fallback]")
+    try:
+        # Use invalid image data to force CV failure
+        invalid_image = b"not a real image"
+        layout = generate_from_text_and_image(
+            user_text=text_description,
+            image_data=invalid_image,
+            device_type=device_type
+        )
+        
+        # Should fall back to text-only generation
+        passed = layout is not None and layout.source_type == "prompt"
+        print_result("CV failure → text-only fallback", passed)
+        all_passed = all_passed and passed
+        
+        if passed:
+            print(f"         Fallback successful: {len(layout.components)} components")
+        
+    except Exception as e:
+        print_result("CV failure → text-only fallback", False, str(e))
+        all_passed = False
+    
+    return all_passed
+
+
 # =============================================================================
 # MAIN
 # =============================================================================
@@ -419,6 +546,7 @@ Examples:
     
     parser.add_argument("--text", action="store_true", help="Test text-to-wireframe pipeline")
     parser.add_argument("--image", action="store_true", help="Test image/CV pipeline")
+    parser.add_argument("--hybrid", action="store_true", help="Test hybrid text+image pipeline")
     parser.add_argument("--devices", action="store_true", help="Test device type configurations")
     parser.add_argument("--all", action="store_true", help="Run all tests")
     parser.add_argument("--device", type=str, default=None, 
@@ -428,9 +556,9 @@ Examples:
     args = parser.parse_args()
     
     # Default to showing help if no args
-    if not any([args.text, args.image, args.devices, args.all]):
+    if not any([args.text, args.image, args.hybrid, args.devices, args.all]):
         parser.print_help()
-        print("\n⚠️  Please specify at least one test: --text, --image, --devices, or --all")
+        print("\n⚠️  Please specify at least one test: --text, --image, --hybrid, --devices, or --all")
         return 1
     
     # Print environment info
@@ -451,6 +579,10 @@ Examples:
     if args.image or args.all:
         passed = test_image_pipeline(args.device)
         results.append(("Image Pipeline", passed))
+    
+    if args.hybrid or args.all:
+        passed = test_hybrid_pipeline(args.device)
+        results.append(("Hybrid Pipeline", passed))
     
     if args.devices or args.all:
         passed = test_device_types()
