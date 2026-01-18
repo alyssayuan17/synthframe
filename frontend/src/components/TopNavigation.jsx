@@ -4,6 +4,15 @@ const TopNavigation = () => {
     return (
         <div className="top-navigation">
             <div className="nav-left">
+                <h1 className="brand">
+                    <img src="/synthframe logo.svg" alt="SynthFrame Logo" className="brand-logo" />
+                    SynthFrame
+                </h1>
+            </div>
+
+            <div className="nav-center"></div>
+
+            <div className="nav-right">
                 <button className="nav-btn" title="Undo">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M3 7v6h6" />
@@ -16,13 +25,7 @@ const TopNavigation = () => {
                         <path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7" />
                     </svg>
                 </button>
-            </div>
-
-            <div className="nav-center">
-                <h1 className="brand">SynthFrame</h1>
-            </div>
-
-            <div className="nav-right">
+                <div className="divider" style={{ width: '1px', height: '24px', backgroundColor: 'var(--color-slate-700)', margin: '0 8px' }}></div>
                 <button className="nav-btn preview-btn" title="Preview">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
