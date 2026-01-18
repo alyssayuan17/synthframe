@@ -19,22 +19,26 @@ All wireframes use this structure:
 
 | Type | Props | Description |
 |------|-------|-------------|
-| NAVBAR | `{logo: string, links: string[], cta: string}` | Top navigation bar |
-| SIDEBAR | `{items: string[]}` | Vertical side menu |
-| FOOTER | `{copyright: string, links: string[]}` | Bottom section |
-| HEADING | `{text: string, level: 1-6}` | Title text |
-| TEXT | `{text: string}` | Paragraph text |
-| CARD | `{title: string, content: string}` | Content card |
-| BUTTON | `{label: string, variant: "primary"\|"secondary"}` | Clickable button |
-| FORM | `{fields: [{label, type, placeholder}]}` | Input form |
-| INPUT | `{placeholder: string, type: string}` | Single input field |
-| TABLE | `{columns: string[], rows: number}` | Data table |
-| CHART | `{type: "bar"\|"line"\|"pie", title: string}` | Chart/graph |
-| IMAGE | `{alt: string, src: string}` | Image placeholder |
-| HERO | `{headline: string, subheadline: string, cta: string}` | Large banner section |
-| SECTION | `{title: string, content: string}` | Generic section |
-| CALENDAR | `{view: "month"\|"week"}` | Calendar widget |
-| BOTTOM_NAV | `{items: string[]}` | Mobile bottom navigation |
+| Type | Props | Description |
+|------|-------|-------------|
+| navigation-bar | `{links: string[], logo: string}` | Standard top nav |
+| sticky-header | `{links: string[]}` | Fixed position header |
+| mega-menu | `{categories: [{title, links: []}]}` | Complex dropdown menu |
+| simple-header | `{title: string}` | Minimal header |
+| hero-banner | `{headline: string, subhead: string, cta: string}` | Main landing section |
+| video-hero | `{videoUrl: string, headline: string}` | Hero with background video |
+| split-hero | `{headline: string, image: string}` | Text left, image right |
+| gradient-hero | `{headline: string, colors: string[]}` | Colorful background hero |
+| feature-grid | `{features: [{title, icon, text}]}` | Grid of features |
+| icon-features | `{features: [{icon, text}]}` | Icon-heavy list |
+| card-features | `{cards: [{title, text, image}]}` | content cards |
+| timeline | `{events: [{date, title, text}]}` | Chronological list |
+| simple-footer | `{copyright: string}` | Minimal footer |
+| multi-column | `{columns: [{title, links: []}]}` | Detailed site map footer |
+| social-footer | `{socials: string[], copyright: string}` | Footer with icons |
+| newsletter | `{placeholder: string, buttonText: string}` | Email signup section |
+| macbook-frame | `{}` | Laptop container frame |
+| iphone-frame | `{}` | Mobile container frame |
 
 ## Component Structure
 
@@ -72,10 +76,10 @@ Each component has:
 
 ## Rules
 
-1. Component types are UPPERCASE ("NAVBAR" not "navbar")
+1. Component types are lowercase kebab-case (e.g., "navigation-bar", "hero-banner")
 2. All positions/sizes are in pixels
 3. Components must fit within canvas dimensions
-4. Every component needs a unique id (e.g., "nav-1", "card-1")
+4. Every component needs a unique id
 5. source is "llm" for AI-generated, "cv" for sketch-detected
 
 ## MCP Tools Available
