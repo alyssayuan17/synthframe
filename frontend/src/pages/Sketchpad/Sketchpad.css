@@ -11,17 +11,17 @@
 .sketchpad-content {
     flex: 1;
     display: grid;
-    grid-template-columns: 220px 1fr 320px;
+    grid-template-columns: 240px 1fr 400px;
     overflow: hidden;
     transition: grid-template-columns 0.3s ease;
 }
 
 .sketchpad-content.left-collapsed {
-    grid-template-columns: 0px 1fr 320px;
+    grid-template-columns: 0px 1fr 400px;
 }
 
 .sketchpad-content.right-collapsed {
-    grid-template-columns: 220px 1fr 0px;
+    grid-template-columns: 240px 1fr 0px;
 }
 
 .sketchpad-content.both-collapsed {
@@ -477,6 +477,154 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid var(--color-slate-300);
+    background-color: var(--color-white);
+}
+
+.right-sidebar .sidebar-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-slate-900);
+    margin: 0 0 4px 0;
+}
+
+.clear-chip-btn {
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.clear-chip-btn:hover {
+    background-color: #fecaca;
+    transform: translateY(-1px);
+}
+
+.context-content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.context-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.context-section h3 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-slate-500);
+    margin: 0;
+}
+
+.info-card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.id-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background-color: var(--color-slate-100);
+    color: var(--color-slate-800);
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: block;
+    margin-bottom: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.secondary-btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 13px;
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #b91c1c;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.secondary-btn:hover {
+    background-color: #fecaca;
+}
+
+.upload-trigger-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px;
+    background-color: var(--color-white);
+    border: 2px dashed var(--color-slate-300);
+    border-radius: 12px;
+    cursor: pointer;
+    color: var(--color-slate-600);
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.upload-trigger-btn:hover {
+    border-color: var(--color-electric-blue);
+    color: var(--color-electric-blue);
+    background-color: rgba(59, 130, 246, 0.05);
+}
+
+.info-card.highlight {
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    padding: 12px 16px;
+}
+
+.empty-chat-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 200px;
+    color: var(--color-slate-400);
+    text-align: center;
+    font-size: 14px;
+    font-style: italic;
+    padding: 0 40px;
+}
+
+.chat-host-area {
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-slate-200);
+}
+
+.tip-box.compact {
+    padding: 12px;
+}
+
+.tip-box.compact p {
+    font-size: 11px;
+    line-height: 1.4;
 }
 
 .status-indicator {
@@ -619,10 +767,10 @@
 /* Side Toggle Bars */
 .side-toggle-bar {
     position: fixed;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 80px;
+    /* Moved up to avoid chat balloon */
     width: 32px;
-    height: 80px;
+    height: 60px;
     background-color: var(--color-electric-blue);
     border: none;
     cursor: pointer;
@@ -642,7 +790,7 @@
 }
 
 .side-toggle-bar.left-toggle {
-    left: 220px;
+    left: 240px;
     border-radius: 0 8px 8px 0;
 }
 
@@ -651,7 +799,7 @@
 }
 
 .side-toggle-bar.right-toggle {
-    right: 320px;
+    right: 400px;
     border-radius: 8px 0 0 8px;
 }
 
