@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getIconCategory, getDisplayLabel } from '../utils/componentTypes';
 
 // Icon components for canvas nodes
 const HeaderIcon = () => (
@@ -36,13 +37,92 @@ const FrameIcon = () => (
     </svg>
 );
 
+const SidebarIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <line x1="9" y1="3" x2="9" y2="21" />
+    </svg>
+);
+
+const FormIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <line x1="7" y1="8" x2="17" y2="8" />
+        <line x1="7" y1="12" x2="17" y2="12" />
+        <line x1="7" y1="16" x2="12" y2="16" />
+    </svg>
+);
+
+const TableIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <line x1="3" y1="9" x2="21" y2="9" />
+        <line x1="3" y1="15" x2="21" y2="15" />
+        <line x1="12" y1="3" x2="12" y2="21" />
+    </svg>
+);
+
+const ChartIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <line x1="18" y1="20" x2="18" y2="10" />
+        <line x1="12" y1="20" x2="12" y2="4" />
+        <line x1="6" y1="20" x2="6" y2="14" />
+    </svg>
+);
+
+const ImageIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+        <polyline points="21 15 16 10 5 21" />
+    </svg>
+);
+
+const ButtonIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="8" width="18" height="8" rx="2" ry="2" />
+    </svg>
+);
+
+const TextIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polyline points="4 7 4 4 20 4 20 7" />
+        <line x1="9" y1="20" x2="15" y2="20" />
+        <line x1="12" y1="4" x2="12" y2="20" />
+    </svg>
+);
+
+const CalendarIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+);
+
+// Map icon categories to components
+const ICON_MAP = {
+    header: <HeaderIcon />,
+    hero: <HeroIcon />,
+    feature: <FeatureIcon />,
+    footer: <FooterIcon />,
+    frame: <FrameIcon />,
+    sidebar: <SidebarIcon />,
+    form: <FormIcon />,
+    input: <FormIcon />,
+    table: <TableIcon />,
+    chart: <ChartIcon />,
+    image: <ImageIcon />,
+    button: <ButtonIcon />,
+    text: <TextIcon />,
+    calendar: <CalendarIcon />,
+    default: <HeaderIcon />,
+};
+
 const getIconForType = (type) => {
-    if (type.includes('header')) return <HeaderIcon />;
-    if (type.includes('hero')) return <HeroIcon />;
-    if (type.includes('feature') || type.includes('timeline')) return <FeatureIcon />;
-    if (type.includes('footer') || type.includes('newsletter')) return <FooterIcon />;
-    if (type.includes('frame')) return <FrameIcon />;
-    return <HeaderIcon />;
+    const category = getIconCategory(type);
+    return ICON_MAP[category] || ICON_MAP.default;
 };
 
 const CanvasNode = ({ id, type, position, size, isFrame, onDelete, onMove, onResize }) => {
@@ -113,7 +193,7 @@ const CanvasNode = ({ id, type, position, size, isFrame, onDelete, onMove, onRes
         >
             <div className="node-header">
                 <span className="node-icon">{getIconForType(type)}</span>
-                <span className="node-title">{type.replace(/-/g, ' ')}</span>
+                <span className="node-title">{getDisplayLabel(type)}</span>
                 <button className="delete-btn" onClick={() => onDelete(id)}>×</button>
             </div>
 

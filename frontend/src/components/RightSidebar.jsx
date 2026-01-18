@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import UploadWidget from './widgets/UploadWidget';
 import StatusWidget from './widgets/StatusWidget';
 
-const RightSidebar = ({ currentWireframeId, onWireframeUpdate }) => {
+const RightSidebar = ({ currentWireframeId, onWireframeUpdate, onClearWireframe }) => {
     const [messages, setMessages] = useState([
         {
             id: 1,
@@ -149,13 +149,46 @@ const RightSidebar = ({ currentWireframeId, onWireframeUpdate }) => {
         }
     };
 
+    const handleNewWireframe = () => {
+        if (onClearWireframe) {
+            onClearWireframe();
+        }
+        setMessages([{
+            id: Date.now(),
+            type: 'assistant',
+            text: 'Starting fresh! Describe the wireframe you want to create, or upload a sketch.',
+        }]);
+        setStatus(null);
+        setStatusData({});
+    };
+
     return (
         <div className="right-sidebar">
             <div className="sidebar-header">
                 <h2>AI Assistant</h2>
-                <div className="status-indicator">
-                    <span className="status-dot"></span>
-                    <span className="status-text">Ready</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {currentWireframeId && (
+                        <button
+                            onClick={handleNewWireframe}
+                            title="Start New Wireframe"
+                            style={{
+                                padding: '6px 12px',
+                                fontSize: '12px',
+                                backgroundColor: '#f3f4f6',
+                                border: '1px solid #d1d5db',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                color: '#374151',
+                                fontWeight: 500,
+                            }}
+                        >
+                            + New
+                        </button>
+                    )}
+                    <div className="status-indicator">
+                        <span className="status-dot"></span>
+                        <span className="status-text">Ready</span>
+                    </div>
                 </div>
             </div>
 

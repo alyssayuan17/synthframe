@@ -1,4 +1,4 @@
-"""
+                                                    """
 Text-to-Wireframe Generation Pipeline
 
 Generates WireframeLayout (pixel-based) from natural language prompts.

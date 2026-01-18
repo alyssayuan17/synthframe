@@ -64,6 +64,7 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-2.0-flash"
     max_tokens: int = 4096
     temperature: float = 0.7
+    mock_llm: bool = False  # Set to True to use mock responses instead of real API
     
     # ===========================================
     # SERVER SETTINGS
