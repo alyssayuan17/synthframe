@@ -15,7 +15,7 @@ Or for production:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.routes import health, generate, edit, scrape, vision, critique, hybrid
+from backend.routes import health, generate, edit, scrape, vision, critique, projects
 from backend.config import settings
 from backend.database import close_mongo_connection, ping_database
 
