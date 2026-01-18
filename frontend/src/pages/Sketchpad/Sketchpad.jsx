@@ -195,7 +195,7 @@ const Sketchpad = () => {
     React.useEffect(() => {
         const fetchLatestWireframe = async () => {
             try {
-                const listRes = await fetch('http://localhost:8001/api/wireframes');
+                const listRes = await fetch('http://localhost:8000/api/wireframes');
                 const listData = await listRes.json();
 
                 if (listData.wireframes && listData.wireframes.length > 0) {
@@ -205,7 +205,7 @@ const Sketchpad = () => {
                     // Only sync if there's newer data AND we haven't cleared
                     if (latest.last_modified > lastSyncedRef.current) {
                         console.log("Syncing from backend:", latest.id);
-                        const detailRes = await fetch(`http://localhost:8001/api/wireframes/${latest.id}`);
+                        const detailRes = await fetch(`http://localhost:8000/api/wireframes/${latest.id}`);
                         const detail = await detailRes.json();
 
                         if (detail && detail.components) {
@@ -361,7 +361,7 @@ const Sketchpad = () => {
 
     const handleUploadSketch = async (base64Image) => {
         try {
-            const response = await fetch('http://localhost:8001/api/analyze', {
+            const response = await fetch('http://localhost:8000/api/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ image_base64: base64Image, prompt: "Analyze this sketch" })
