@@ -244,6 +244,7 @@ const CanvasNode = ({ id, type, position, size, isFrame, onDelete, onMove, onRes
                 <span className="node-icon">{getIconForType(type)}</span>
                 <span className="node-title">{getDisplayLabel(type)}</span>
                 <button className="delete-btn" onClick={() => onDelete(id)}>×</button>
+            </div>
             {/* Floating title label */}
             <div className="node-label">
                 <span className="node-label-text">{type.replace(/-/g, ' ')}</span>
