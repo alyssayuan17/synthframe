@@ -245,17 +245,13 @@ const CanvasNode = ({ id, type, position, size, props, isFrame, onDelete, onMove
                 <span className="node-title">{getDisplayLabel(type)}</span>
                 <button className="delete-btn" onClick={() => onDelete(id)}>×</button>
             </div>
-            {/* Floating title label */}
-            <div className="node-label">
-                <span className="node-label-text">{type.replace(/-/g, ' ')}</span>
-                <button className="node-delete-btn" onClick={() => onDelete(id)}>×</button>
-            </div>
+{/* Floating title label - hidden to avoid duplicate with node-header */}
 
             {/* Render actual interactive component */}
             {!isFrame && (() => {
                 const Component = getComponentByType(type);
                 return Component ? (
-                    <div className="node-component p-2" onMouseDown={handleMouseDown} style={{ width: '100%', height: '100%', boxSizing: 'border-box' }}>
+                    <div className="node-component" onMouseDown={handleMouseDown} style={{ width: '100%', height: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
                         <Component {...(props || {})} />
                     </div>
                 ) : null;
