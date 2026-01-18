@@ -8,7 +8,6 @@ from fastapi import APIRouter, HTTPException
 from backend.generation.generate import generate_wireframe, GenerationError
 from backend.models.requests import GenerateRequest
 from backend.models.responses import GenerateResponse, ErrorResponse
-from backend.database.operations import create_project, DatabaseError
 
 router = APIRouter(tags=["Generation"])
 
@@ -38,25 +37,11 @@ async def generate(request: GenerateRequest):
             device_type=request.device_type,
         )
         
-        # Auto-save to MongoDB
-        try:
-            project = await create_project(
-                wireframe=layout,
-                name=None,  # Auto-generated
-                generation_method="text_prompt",
-                device_type=request.device_type or "laptop",
-                original_prompt=request.user_input,
-                webscraper_context=used_context
-            )
-            project_id = project.id
-        except DatabaseError as db_err:
-            # If database fails, still return wireframe (hackathon-safe)
-            print(f"Warning: Failed to save project to MongoDB: {db_err}")
-            project_id = None
+        # No auto-save - user must explicitly save via /projects endpoints
         
         return GenerateResponse(
             success=True,
-            project_id=project_id,
+            project_id=None,  # No auto-save
             wireframe_layout=layout,
             used_webscraper_context=used_context,
             message=f"Generated wireframe with {len(layout.components)} components"
