@@ -28,9 +28,9 @@ const Landing = () => {
 
             <main className="landing-main">
                 <section className="hero">
-                    <h1 className="hero-title">Visual Design Canvas</h1>
+                    <h1 className="hero-title">AI-Powered Visual Design Canvas</h1>
                     <p className="hero-subtitle">
-                        Create, prototype, and iterate on your designs with an infinite canvas
+                        Create, prototype, and iterate on your designs with an AI agent!
                     </p>
                     <div className="hero-actions">
                         <Link to="/sketchpad" className="btn-primary">
@@ -89,9 +89,9 @@ const Landing = () => {
                                     <polyline points="8 6 2 12 8 18"/>
                                 </svg>
                             </div>
-                            <h3 className="feature-title">Export Ready</h3>
+                            <h3 className="feature-title">AI-assisted Formatting</h3>
                             <p className="feature-description">
-                                Generate production-ready code from your visual designs
+                                Generate production-ready formats for production-ready pages and apps
                             </p>
                         </div>
                     </div>
@@ -100,7 +100,7 @@ const Landing = () => {
                 <section className="cta">
                     <h2 className="cta-title">Ready to start designing?</h2>
                     <p className="cta-description">
-                        Join designers building the future of visual development
+                        Join us in building the future of visual development!
                     </p>
                     <Link to="/sketchpad" className="btn-primary">
                         Launch Sketchpad
