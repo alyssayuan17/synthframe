@@ -72,6 +72,8 @@ class ComponentType(str, Enum):
     SECTION = "SECTION"
     CONTENT_BLOCK = "CONTENT-BLOCK"
     CARD = "CARD"
+    BADGE_GROUP = "BADGE-GROUP"
+    INPUT_LABEL = "INPUT-LABEL"
     FEATURE_GRID = "FEATURE-GRID"
     PRICING_TABLE = "PRICING-TABLE"
 
@@ -344,6 +346,8 @@ COMPONENT_TEMPLATES: dict = {
     "HERO-BANNER": {"headline": "Your Headline Here", "subheadline": "Supporting text", "cta": "Get Started"},
     "SECTION": {"title": "Section Title", "content": "Section content goes here"},
     "CONTENT-BLOCK": {"title": "Section Title", "content": "Section content goes here"},
+    "BADGE-GROUP": {"badges": ["Math", "Science", "History"]},
+    "INPUT-LABEL": {"label": "Label", "placeholder": "Placeholder"},
     "CARD": {"title": "Card Title", "content": "Card content goes here"},
     "FEATURE-GRID": {"features": [{"title": "Fast", "description": "High performance"}]},
     "PRICING-TABLE": {"plans": [{"name": "Pro", "price": "$29", "desc": "Best value"}]},
