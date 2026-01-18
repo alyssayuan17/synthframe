@@ -188,6 +188,7 @@ const Sketchpad = () => {
     };
 
     const lastSyncedRef = React.useRef(0);
+    const clearedWireframeRef = React.useRef(null);
 
     // Helper to transform backend components to frontend node format
     const transformBackendComponentToNode = (comp, index) => {
@@ -207,7 +208,7 @@ const Sketchpad = () => {
     };
 
     // Helper to flatten components with children into a flat array
-    const flattenComponents = (components, parentPosition = { x: 0, y: 0 }) => {
+    const flattenComponents = (components) => {
         const flattened = [];
 
         components.forEach((comp, index) => {
@@ -253,6 +254,13 @@ const Sketchpad = () => {
                     console.log("🔵 Latest wireframe:", latest);
                     console.log("🔵 lastSyncedRef:", lastSyncedRef.current);
                     console.log("🔵 latest.last_modified:", latest.last_modified);
+                    console.log("🔵 clearedWireframeRef:", clearedWireframeRef.current);
+
+                    // Skip if this is the wireframe we just cleared
+                    if (latest.id === clearedWireframeRef.current) {
+                        console.log("⏭️ Skipping cleared wireframe:", latest.id);
+                        return;
+                    }
 
                     // Convert ISO timestamp to comparable number
                     const latestTimestamp = new Date(latest.last_modified).getTime();
@@ -423,10 +431,10 @@ const Sketchpad = () => {
     };
 
     const handleClearWireframe = () => {
+        // Track which wireframe we're clearing so polling skips it
+        clearedWireframeRef.current = currentWireframeId;
         setNodes([]);
         setCurrentWireframeId(null);
-        // Set to a very high value so polling won't override with old data
-        lastSyncedRef.current = Date.now() / 1000 + 999999;
     };
 
     const handleUploadSketch = async (base64Image) => {
