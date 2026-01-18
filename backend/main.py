@@ -15,7 +15,7 @@ Or for production:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.routes import health, generate, edit, scrape, vision, critique
+from backend.routes import health, generate, edit, scrape, vision, critique, hybrid
 from backend.config import settings
 
 # =============================================================================
@@ -30,6 +30,7 @@ app = FastAPI(
     ## Features
     - **Text → Wireframe**: Describe a UI and get a wireframe
     - **Sketch → Wireframe**: Upload a hand-drawn sketch
+    - **Text + Sketch → Wireframe**: Combine both for best results (NEW!)
     - **Edit**: Modify wireframes with natural language
     - **Critique**: Get design suggestions (coming soon)
     
@@ -75,6 +76,9 @@ app.include_router(vision.router)
 # Design critique (stub for now)
 app.include_router(critique.router)
 
+# Hybrid text + image generation
+app.include_router(hybrid.router)
+
 # =============================================================================
 # ROOT ENDPOINT
 # =============================================================================
@@ -91,6 +95,7 @@ async def root():
             "health": "GET /health",
             "generate": "POST /generate",
             "edit": "POST /edit",
+            "hybrid": "POST /hybrid",
             "scrape": "POST /scrape",
             "vision": "POST /vision/analyze",
             "critique": "POST /critique",
