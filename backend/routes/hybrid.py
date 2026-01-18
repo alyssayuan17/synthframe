@@ -9,6 +9,7 @@ import logging
 
 from backend.generation.hybrid import generate_from_text_and_image
 from backend.models.responses import WireframeResponse
+from backend.database.operations import create_project, DatabaseError
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -54,7 +55,27 @@ async def generate_hybrid(
             device_type=device_type,
         )
         
-        return WireframeResponse(wireframe=layout)
+        # Auto-save to MongoDB
+        project_id = None
+        try:
+            project = await create_project(
+                wireframe=layout,
+                name=None,  # Auto-generate name
+                generation_method="hybrid",
+                device_type=device_type,
+                original_prompt=text
+            )
+            project_id = project.id
+            logger.info(f"Hybrid wireframe saved to MongoDB: {project_id}")
+        except DatabaseError as db_err:
+            # MongoDB failure shouldn't break generation (hackathon-safe)
+            logger.warning(f"Failed to save to MongoDB: {db_err}")
+        
+        return WireframeResponse(
+            success=True,
+            project_id=project_id,
+            wireframe=layout
+        )
         
     except HTTPException:
         raise
