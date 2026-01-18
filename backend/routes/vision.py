@@ -1,13 +1,11 @@
 """
 Vision Route - POST /vision/analyze
 Analyze uploaded sketch/mockup images using CV pipeline.
-Auto-saves to MongoDB.
 """
 from fastapi import APIRouter, HTTPException
 
 from backend.models.requests import ImageUploadRequest
 from backend.models.responses import WireframeResponse, ErrorResponse
-from backend.database.operations import create_project, DatabaseError
 
 router = APIRouter(prefix="/vision", tags=["Vision"])
 
@@ -66,24 +64,11 @@ async def analyze_image(request: ImageUploadRequest):
             components=components
         )
         
-        # Auto-save to MongoDB
-        try:
-            project = await create_project(
-                wireframe=layout,
-                name=request.name,
-                generation_method="cv_sketch" if request.image_type == "sketch" else "mockup",
-                device_type=request.device_type or DEFAULT_DEVICE_TYPE,
-                original_prompt=f"CV analysis: {request.image_type}"
-            )
-            project_id = project.id
-        except DatabaseError as db_err:
-            # If database fails, still return wireframe (hackathon-safe)
-            print(f"Warning: Failed to save project to MongoDB: {db_err}")
-            project_id = None
+        # No auto-save - user must explicitly save via /projects endpoints
         
         return WireframeResponse(
             success=True,
-            project_id=project_id,
+            project_id=None,  # No auto-save
             wireframe=layout,
             message=f"Detected {len(components)} components"
         )
