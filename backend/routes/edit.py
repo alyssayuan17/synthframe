@@ -49,10 +49,12 @@ async def edit(request: EditWireframeRequest):
             try:
                 existing_project = await get_project(project_id)
                 if existing_project:
-                    update_data = ProjectUpdate(
-                        wireframe=new_layout,
-                        device_type=request.device_type
-                    )
+                    # Only include device_type if it's provided
+                    update_dict = {"wireframe": new_layout}
+                    if request.device_type:
+                        update_dict["device_type"] = request.device_type
+                    
+                    update_data = ProjectUpdate(**update_dict)
                     await update_project(
                         project_id,
                         update_data,
@@ -65,6 +67,7 @@ async def edit(request: EditWireframeRequest):
             except DatabaseError as db_err:
                 # If database fails, still return wireframe
                 print(f"Warning: Failed to update project in MongoDB: {db_err}")
+
         
         return EditWireframeResponse(
             success=True,
