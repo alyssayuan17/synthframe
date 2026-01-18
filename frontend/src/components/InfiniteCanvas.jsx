@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import CanvasNode from './CanvasNode';
 
-const InfiniteCanvas = ({ nodes, onAddNode, onDeleteNode, onMoveNode, onResizeNode, connections = [], onAddConnection, onNodeDragStop }) => {
+const InfiniteCanvas = ({ nodes, onAddNode, onDeleteNode, onMoveNode, onResizeNode, connections = [], onAddConnection, onNodeDragStop, selectedNodeId, onSelectNode }) => {
     const [pan, setPan] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [isPanning, setIsPanning] = useState(false);
@@ -41,6 +41,10 @@ const InfiniteCanvas = ({ nodes, onAddNode, onDeleteNode, onMoveNode, onResizeNo
         }
 
         if (e.target === canvasRef.current || e.target.closest('.canvas-content')) {
+            // Deselect any selected node when clicking on canvas background
+            if (onSelectNode) {
+                onSelectNode(null);
+            }
             setIsPanning(true);
             setPanStart({
                 x: e.clientX - pan.x,
@@ -271,6 +275,8 @@ const InfiniteCanvas = ({ nodes, onAddNode, onDeleteNode, onMoveNode, onResizeNo
                             onConnectStart={handleConnectStart}
                             onConnectEnd={handleConnectEnd}
                             onDragEnd={onNodeDragStop}
+                            isSelected={selectedNodeId === node.id}
+                            onSelect={onSelectNode}
                         />
                     ))}
                 </div>
