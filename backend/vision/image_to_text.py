@@ -62,7 +62,8 @@ class SketchAnalysisResult:
 def analyze_sketch(
     image_base64: str,
     return_debug_image: bool = True,
-    wireframe_name: str = "Sketch Wireframe"
+    wireframe_name: str = "Sketch Wireframe",
+    device_type: Optional[str] = None
 ) -> SketchAnalysisResult:
     """
     Main entry point: Analyze a hand-drawn sketch and extract UI components.
@@ -78,6 +79,7 @@ def analyze_sketch(
         image_base64: Base64 encoded image (with or without data URI prefix)
         return_debug_image: Include debug visualization in response
         wireframe_name: Name for the generated wireframe
+        device_type: Optional device type for device-specific detection (macbook/iphone)
         
     Returns:
         SketchAnalysisResult with Wireframe, components, and debug info
