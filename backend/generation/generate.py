@@ -1,4 +1,4 @@
-                                                    """
+"""
 Text-to-Wireframe Generation Pipeline
 
 Generates WireframeLayout (pixel-based) from natural language prompts.
@@ -21,6 +21,64 @@ logger = logging.getLogger(__name__)
 
 class GenerationError(Exception):
     pass
+
+
+def fix_overlapping_components(layout: WireframeLayout) -> WireframeLayout:
+    """
+    Post-process wireframe to fix overlapping components.
+
+    Sorts components by Y position and ensures proper vertical spacing.
+    This is a safety net for when the LLM generates overlapping layouts.
+
+    Args:
+        layout: The wireframe layout to fix
+
+    Returns:
+        Layout with fixed positions (no overlaps)
+    """
+    if not layout.components:
+        return layout
+
+    SPACING = 0  # Edge-to-edge for seamless webpage look
+
+    # Separate full-width components (stack vertically) from positioned ones (like sidebar)
+    full_width_components = []
+    positioned_components = []
+
+    canvas_width = layout.canvas_size.width if layout.canvas_size else 1440
+
+    for comp in layout.components:
+        # Consider component "full width" if it spans > 70% of canvas
+        comp_width = comp.size.get("width", 200) if comp.size else 200
+        comp_x = comp.position.get("x", 0) if comp.position else 0
+
+        if comp_width > canvas_width * 0.7 or comp_x == 0 and comp_width > canvas_width * 0.5:
+            full_width_components.append(comp)
+        else:
+            positioned_components.append(comp)
+
+    # Sort full-width components by Y position
+    full_width_components.sort(key=lambda c: c.position.get("y", 0) if c.position else 0)
+
+    # Fix overlaps in full-width components
+    current_y = 0
+    for comp in full_width_components:
+        comp_y = comp.position.get("y", 0) if comp.position else 0
+        comp_height = comp.size.get("height", 100) if comp.size else 100
+
+        # If this component starts before the current_y, it's overlapping
+        if comp_y < current_y:
+            logger.info(f"Fixing overlap: {comp.id} moved from y={comp_y} to y={current_y}")
+            comp.position["y"] = current_y
+
+        # Update current_y for next component
+        actual_y = comp.position.get("y", 0)
+        current_y = actual_y + comp_height + SPACING
+
+    # Combine and return
+    layout.components = full_width_components + positioned_components
+
+    return layout
 
 
 def _create_default_wireframe(device_type: str, user_input: str) -> WireframeLayout:
@@ -171,6 +229,9 @@ def generate_wireframe(
     # Set source_type and ensure canvas size matches device
     layout.source_type = "prompt"
     layout.canvas_size = Size(width=canvas["width"], height=canvas["height"])
+
+    # Fix any overlapping components (safety net for LLM mistakes)
+    layout = fix_overlapping_components(layout)
 
     return layout, (used_ctx or None)
 

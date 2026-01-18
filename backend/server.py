@@ -33,6 +33,8 @@ from vision import analyze_sketch as cv_analyze_sketch
 from llm.client import LlmClient
 from llm.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE, EDIT_SYSTEM_PROMPT
 from llm.json_repair import parse_json
+from generation.generate import fix_overlapping_components
+from models.wireframe import WireframeLayout, Size
 
 # Initialize MCP server
 from mcp.server.fastmcp import FastMCP
@@ -140,23 +142,35 @@ def update_with_gemini(current_wireframe: dict, instruction: str) -> dict:
     Update existing wireframe based on instruction.
     """
     current_json = json.dumps(current_wireframe, indent=2)
-    
+
     update_prompt = f"""
     {EDIT_SYSTEM_PROMPT}
-    
+
     INSTRUCTION: {instruction}
-    
+
     CURRENT WIREFRAME:
     {current_json}
-    
+
     UPDATED WIREFRAME JSON:
     """
-    
+
     print(f"Updating wireframe with instruction: {instruction}")
     response_text = llm_client.generate(update_prompt)
-    
+
     try:
-        return parse_json(response_text)
+        updated_data = parse_json(response_text)
+
+        # Fix any overlapping components (safety net for LLM mistakes)
+        try:
+            layout = WireframeLayout.model_validate(updated_data)
+            layout = fix_overlapping_components(layout)
+            # Convert back to dict
+            updated_data = layout.model_dump()
+        except Exception as fix_error:
+            print(f"Warning: Could not apply overlap fix: {fix_error}")
+            # Continue with unfixed data if fix fails
+
+        return updated_data
     except Exception as e:
         print(f"Error updating wireframe: {e}")
         return current_wireframe

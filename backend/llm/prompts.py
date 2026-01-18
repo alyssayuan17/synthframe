@@ -106,16 +106,31 @@ Every component "type" field MUST be one of these EXACT strings:
 2. Every component MUST have a unique "id" (e.g., "nav-1", "card-1", "hero-main")
 3. Component "type" MUST be UPPERCASE exactly as listed above (e.g., "NAVBAR" not "navbar" or "NavBar")
 4. All position values (x, y) and size values (width, height) MUST be integers (whole numbers, not decimals)
-5. Every component MUST fit within the canvas: 
+5. Every component MUST fit within the canvas:
    - x + width ≤ {canvas['width']}
    - y + height ≤ {canvas['height']}
 6. The "source" field MUST always be "llm" (lowercase)
 7. The "children" field MUST be an empty array [] for now
 8. The "props" should contain realistic, minimal properties relevant to the component type
-9. Do not overlap components unless intentional (e.g., navbar over content)
+9. **SEAMLESS STACKING**: Components MUST be edge-to-edge with NO gaps. Each component starts exactly where the previous one ends.
 10. Ensure all required fields are present for each component
 
+# LAYOUT CALCULATION (VERY IMPORTANT)
+You MUST calculate positions for a SEAMLESS webpage look. Components should be EDGE-TO-EDGE with NO gaps.
+
+1. Start with NAVBAR at y=0, x=0, width=FULL CANVAS WIDTH (height typically 60-80px)
+2. Each subsequent component: Y = previous Y + previous height (NO gap/spacing)
+3. All full-width sections: x=0, width={canvas['width']} (full width)
+4. Example calculation:
+   - NAVBAR: y=0, height=64 → ends at y=64
+   - HERO: y=64, height=350 → ends at y=414 (starts exactly where navbar ends)
+   - SECTION: y=414, height=300 → ends at y=714
+   - FOOTER: y=714, height=100 → ends at y=814
+
+5. For cards/grids INSIDE a section, center them horizontally with equal margins
+
 # COMMON MISTAKES TO AVOID
+- **OVERLAPPING COMPONENTS**: Each component must have y >= previous component's (y + height). Calculate positions!
 - Wrapping JSON in markdown code blocks (```json)
 - Using lowercase component types ("navbar" instead of "NAVBAR")
 - Using decimal/float values for positions or sizes (use integers only)
@@ -124,46 +139,78 @@ Every component "type" field MUST be one of these EXACT strings:
 - Adding extra text before or after the JSON
 - Using incorrect prop structures for component types
 
+# IMPORTANT: ALWAYS START WITH A FRAME + 4 CORE COMPONENTS
+Every wireframe MUST start with a FRAME component, then 4 content components inside it:
+
+1. FRAME (MacBook container at position 0,0 - size 1440x900) - ALWAYS FIRST
+2. NAVIGATION-BAR (navbar at y=0, inside frame)
+3. HERO-BANNER (hero section below navbar)
+4. FEATURE-GRID OR PRICING-TABLE (features/pricing section)
+5. FOOTER-SIMPLE (footer at bottom)
+
+The FRAME acts as the device mockup container. All other components render ON TOP of the frame.
+Do NOT add extra CONTENT-BLOCK, HEADING, TEXT, or other components unless specifically requested.
+
 # EXAMPLE OUTPUT
-Here is a complete valid example for MacBook:
+Here is a complete valid example with FRAME + 4 components:
 
 {{
   "id": "layout-001",
-  "name": "SaaS Dashboard",
+  "name": "Student Services Landing Page",
   "canvas_size": {{"width": 1440, "height": 900}},
-  "background_color": "#f8f9fa",
+  "background_color": "#ffffff",
   "source_type": "prompt",
   "device_type": "macbook",
   "components": [
     {{
+      "id": "frame-macbook",
+      "type": "FRAME",
+      "position": {{"x": 0, "y": 0}},
+      "size": {{"width": 1440, "height": 900}},
+      "props": {{"device": "macbook"}},
+      "children": [],
+      "source": "llm"
+    }},
+    {{
       "id": "nav-1",
-      "type": "NAVBAR",
+      "type": "NAVIGATION-BAR",
       "position": {{"x": 0, "y": 0}},
       "size": {{"width": 1440, "height": 64}},
-      "props": {{"logo": "AppName", "links": ["Dashboard", "Analytics", "Settings"], "cta": "Upgrade"}},
+      "props": {{"logo": "StudentHub", "items": ["Home", "Services", "About"], "cta": "Login"}},
       "children": [],
       "source": "llm"
     }},
     {{
-      "id": "sidebar-1",
-      "type": "SIDEBAR",
+      "id": "hero-1",
+      "type": "HERO-BANNER",
       "position": {{"x": 0, "y": 64}},
-      "size": {{"width": 240, "height": 836}},
-      "props": {{"items": ["Overview", "Reports", "Team", "Help"]}},
+      "size": {{"width": 1440, "height": 400}},
+      "props": {{"headline": "Your Academic Success Starts Here", "subheadline": "Resources for every student", "cta": "Get Started"}},
       "children": [],
       "source": "llm"
     }},
     {{
-      "id": "card-1",
-      "type": "CARD",
-      "position": {{"x": 260, "y": 94}},
-      "size": {{"width": 350, "height": 200}},
-      "props": {{"title": "Total Users", "content": "1,234 active users"}},
+      "id": "features-1",
+      "type": "PRICING-TABLE",
+      "position": {{"x": 0, "y": 464}},
+      "size": {{"width": 1440, "height": 300}},
+      "props": {{"plans": [{{"name": "Basic", "price": "$0", "features": ["Feature 1"]}}, {{"name": "Pro", "price": "$29", "features": ["All features"]}}]}},
+      "children": [],
+      "source": "llm"
+    }},
+    {{
+      "id": "footer-1",
+      "type": "FOOTER-SIMPLE",
+      "position": {{"x": 0, "y": 764}},
+      "size": {{"width": 1440, "height": 136}},
+      "props": {{"copyright": "© 2024 StudentHub", "links": ["Privacy", "Terms"]}},
       "children": [],
       "source": "llm"
     }}
   ]
 }}
+
+CRITICAL: FRAME must be FIRST. Components stack edge-to-edge (y = prev_y + prev_height). Total height = 900.
 
 Now generate the wireframe JSON based on the user's request.
 """
@@ -219,6 +266,25 @@ Canvas Size: {canvas['width']} × {canvas['height']} pixels
 8. All component types MUST remain UPPERCASE
 9. All position and size values MUST be integers
 10. Ensure edited components still fit within canvas boundaries
+11. **CRITICAL: PREVENT OVERLAP** - After any edit, recalculate ALL Y positions to ensure no components overlap!
+
+# LAYOUT RECALCULATION (MUST DO AFTER EVERY EDIT)
+After making changes, you MUST verify and fix component positions:
+
+1. Sort components by their Y position (top to bottom)
+2. Ensure each component's Y >= previous component's (Y + height + 20px spacing)
+3. If you add/remove/resize a component, RECALCULATE all positions below it
+4. Example: If you make a navbar taller (64→80px), shift ALL components below by 16px
+
+**Position Calculation Formula:**
+- First component (usually NAVBAR): y = 0
+- Each next component: y = previous_y + previous_height + 20 (spacing)
+
+**Example recalculation after edit:**
+Before: NAVBAR(y=0, h=64), HERO(y=84, h=300), FOOTER(y=404, h=80)
+Edit: "Make navbar taller" → NAVBAR height becomes 80
+After: NAVBAR(y=0, h=80), HERO(y=100, h=300), FOOTER(y=420, h=80)
+↑ Notice: HERO moved from y=84 to y=100, FOOTER moved from y=404 to y=420
 
 # EXAMPLE EDIT SCENARIOS
 
@@ -235,6 +301,7 @@ Instruction: "Remove all cards"
 → Filter out all components with type "CARD"
 
 # COMMON EDITING MISTAKES TO AVOID
+- **OVERLAPPING COMPONENTS** - This is the #1 mistake! Always recalculate Y positions after edits
 - Returning only the changed components (must return FULL wireframe)
 - Accidentally changing unrelated component properties
 - Breaking component IDs when they should be preserved
@@ -242,6 +309,7 @@ Instruction: "Remove all cards"
 - Changing component types to lowercase
 - Making components overflow the canvas
 - Forgetting to adjust positions when inserting/resizing components
+- Adding new components without calculating proper Y position (must be below existing components)
 
 # OUTPUT FORMAT
 Return the complete wireframe with this structure:

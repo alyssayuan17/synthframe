@@ -69,3 +69,29 @@ Each component has this structure:
 4. Every component needs a unique id (e.g., "nav-1", "btn-submit").
 5. source is "llm" for AI-generated, "cv" for sketch-detected.
 6. children array is empty [] for now.
+
+## CRITICAL: Layout Positioning (PREVENT OVERLAPPING)
+
+**Components MUST NOT overlap.** Stack them vertically with proper spacing.
+
+### Position Calculation Formula:
+- NAVBAR: y = 0 (always first)
+- Each component after: y = previous_y + previous_height + 20 (spacing)
+
+### Example Layout (MacBook 1440x900):
+```
+NAVIGATION-BAR: y=0,   height=64  → ends at 64
+HERO-BANNER:    y=84,  height=300 → ends at 384
+FEATURE-GRID:   y=404, height=250 → ends at 654
+FOOTER-SIMPLE:  y=674, height=80  → ends at 754
+```
+
+### When EDITING a wireframe:
+1. After ANY change, recalculate ALL Y positions
+2. If you resize a component, shift everything below it
+3. If you add a new component, insert it at the correct Y position
+4. Example: Making navbar taller (64→80) means shifting HERO from y=84 to y=100
+
+### Common Mistake to Avoid:
+❌ Adding components without calculating Y position (causes overlap)
+✅ Always calculate: new_y = last_component_y + last_component_height + 20

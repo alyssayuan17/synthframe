@@ -307,20 +307,23 @@
 .canvas-node-wrapper {
     position: absolute;
     z-index: 10;
-    border: 1px solid transparent;
-    transition: border-color 0.2s ease;
+    border: none;
+    transition: box-shadow 0.2s ease;
 }
 
 .canvas-node-wrapper:hover {
-    border-color: var(--color-electric-blue);
-    /* Show border on hover */
-    z-index: 100;
-    /* Bring to front on hover */
+    box-shadow: 0 0 0 2px var(--color-electric-blue);
+    /* Don't change z-index on hover - keeps layer order stable */
 }
 
 .canvas-node-wrapper.dragging {
     opacity: 0.9;
-    z-index: 20;
+    z-index: 1000;
+}
+
+.canvas-node-wrapper.selected {
+    z-index: 500;
+    box-shadow: 0 0 0 2px var(--color-electric-blue);
 }
 
 /* Frames always stay behind regular components */
@@ -448,36 +451,65 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    position: absolute;
+    top: -28px;
+    left: 0;
+    background: rgba(30, 41, 59, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 10;
+}
+
+.canvas-node-wrapper:hover .node-header {
+    opacity: 1;
+}
+
+.canvas-node-wrapper.selected .node-header {
+    opacity: 1;
 }
 
 .node-icon {
-    font-size: 18px;
+    font-size: 14px;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+
+.node-icon svg {
+    stroke: white;
 }
 
 .node-title {
     flex: 1;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-slate-900);
+    font-size: 11px;
+    font-weight: 500;
+    color: white;
     text-transform: capitalize;
 }
 
 .delete-btn {
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
     border: none;
     background-color: transparent;
-    color: var(--color-slate-700);
+    color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
-    font-size: 20px;
+    font-size: 14px;
     line-height: 1;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .delete-btn:hover {
     background-color: #ef4444;
-    color: var(--color-white);
+    color: white;
 }
 
 .connection-points {
@@ -546,11 +578,11 @@
 }
 
 .canvas-node-wrapper.frame-node .node-header {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.7);
     color: var(--color-white);
-    padding: 8px 12px;
-    border-radius: 6px;
-    margin: -8px -8px 12px -8px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin: 0;
 }
 
 .canvas-node.frame-node .node-title {

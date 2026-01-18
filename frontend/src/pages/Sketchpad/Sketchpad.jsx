@@ -259,11 +259,15 @@ const Sketchpad = () => {
         });
     };
 
-    // Sort nodes so frames render first (below other components)
+    // Sort nodes: frames first (behind), then by ID (newer components on top)
     const sortedNodes = [...nodes].sort((a, b) => {
+        // Frames always render first (behind everything)
         if (a.isFrame && !b.isFrame) return -1;
         if (!a.isFrame && b.isFrame) return 1;
-        return 0;
+        // For non-frames, sort by ID so newer components render last (on top)
+        const aId = typeof a.id === 'number' ? a.id : parseInt(a.id) || 0;
+        const bId = typeof b.id === 'number' ? b.id : parseInt(b.id) || 0;
+        return aId - bId;
     });
 
     // Handle keyboard events for deleting selected node

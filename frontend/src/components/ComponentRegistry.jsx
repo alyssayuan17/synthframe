@@ -5,7 +5,7 @@ import React from 'react';
 // ============================================
 
 const NavbarComponent = ({ logo, links }) => (
-    <div className="navbar shadow-xl rounded-lg" style={{
+    <div className="navbar" style={{
         width: '100%',
         height: '100%',
         backgroundColor: '#94a3b8',
@@ -28,7 +28,7 @@ const NavbarComponent = ({ logo, links }) => (
 );
 
 const NavbarWithDropdown = () => (
-    <div className="navbar shadow-xl rounded-lg" style={{
+    <div className="navbar" style={{
         width: '100%',
         height: '100%',
         backgroundColor: '#94a3b8',
@@ -331,7 +331,7 @@ const CalendarComponent = () => (
 );
 
 const PricingComponent = ({ plans }) => (
-    <div className="w-full h-full flex flex-row gap-6 justify-center items-center bg-base-200 p-6 rounded-lg overflow-x-auto">
+    <div className="w-full h-full flex flex-row gap-6 justify-center items-center bg-base-200 p-6 overflow-x-auto">
         {(plans && Array.isArray(plans) ? plans : [
             { name: 'Basic', price: '$0', desc: 'Free forever' },
             { name: 'Pro', price: '$29', desc: 'Best for small teams' }
@@ -369,11 +369,11 @@ const HeroBasic = ({ headline, subheadline, cta }) => (
 const HeroWithImage = ({ headline, content, cta }) => (
     <div className="hero bg-base-200 p-4" style={{ width: '100%', height: '100%' }}>
         <div className="hero-content flex-row gap-8">
-            <div className="w-64 h-64 bg-base-300 flex items-center justify-center rounded-lg shadow-2xl flex-shrink-0">Image</div>
+            <div className="w-48 h-48 bg-base-300 flex items-center justify-center shadow-lg flex-shrink-0">Image</div>
             <div>
-                <h1 className="text-4xl font-bold">{headline || 'Box Office News!'}</h1>
-                <p className="py-4">{content || 'Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi.'}</p>
-                <button className="btn btn-primary">{cta || 'Get Started'}</button>
+                <h1 className="text-3xl font-bold">{headline || 'Content Section'}</h1>
+                <p className="py-4">{content || 'Add your content description here.'}</p>
+                <button className="btn btn-primary">{cta || 'Learn More'}</button>
             </div>
         </div>
     </div>
@@ -435,6 +435,44 @@ const DropdownHover = () => (
 );
 
 // ============================================
+// DEVICE FRAME COMPONENTS
+// ============================================
+
+const MacBookFrame = ({ device }) => (
+    <div style={{
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#1e293b',
+        borderRadius: '12px',
+        border: '3px solid #334155',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+        position: 'relative',
+        overflow: 'hidden'
+    }}>
+        {/* Browser chrome / top bar */}
+        <div style={{
+            height: '28px',
+            backgroundColor: '#334155',
+            display: 'flex',
+            alignItems: 'center',
+            paddingLeft: '12px',
+            gap: '6px'
+        }}>
+            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ef4444' }}></div>
+            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#eab308' }}></div>
+            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#22c55e' }}></div>
+        </div>
+        {/* Screen area - content renders on top */}
+        <div style={{
+            width: '100%',
+            height: 'calc(100% - 28px)',
+            backgroundColor: '#0f172a'
+        }}>
+        </div>
+    </div>
+);
+
+// ============================================
 // FOOTER COMPONENTS
 // ============================================
 
@@ -462,7 +500,7 @@ const FooterBasic = () => (
 );
 
 const FooterCentered = () => (
-    <footer className="footer footer-center p-10 bg-base-200 text-base-content rounded" style={{ width: '100%', height: '100%' }}>
+    <footer className="footer footer-center p-10 bg-base-200 text-base-content" style={{ width: '100%', height: '100%' }}>
         <nav className="grid grid-flow-col gap-4">
             <a className="link link-hover">About us</a>
             <a className="link link-hover">Contact</a>
@@ -557,7 +595,7 @@ export const COMPONENT_REGISTRY = {
     'TABLE': StatsComponent,
     'CALENDAR': CalendarComponent,
     'CHART': RadialProgress,
-    'FRAME': HeroBasic,
+    'FRAME': MacBookFrame,
 
     // Backend compatible types
     'NAVBAR': NavbarComponent,
