@@ -238,40 +238,62 @@ const Sketchpad = () => {
     // CONNNECTION TO BACKEND (Athena AI)
     // ===================================
     React.useEffect(() => {
+        console.log("🔵 Polling useEffect started");
+
         const fetchLatestWireframe = async () => {
             try {
+                console.log("🔵 Fetching wireframes list...");
                 const listRes = await fetch('http://localhost:8000/api/wireframes');
                 const listData = await listRes.json();
+                console.log("🔵 Wireframes list:", listData);
 
                 if (listData.wireframes && listData.wireframes.length > 0) {
                     // Backend is now sorted REVERSE (most recent first)
                     const latest = listData.wireframes[0];
+                    console.log("🔵 Latest wireframe:", latest);
+                    console.log("🔵 lastSyncedRef:", lastSyncedRef.current);
+                    console.log("🔵 latest.last_modified:", latest.last_modified);
 
-                    // Only sync if there's newer data AND we haven't cleared
-                    if (latest.last_modified > lastSyncedRef.current) {
-                        console.log("Syncing from backend:", latest.id);
+                    // Convert ISO timestamp to comparable number
+                    const latestTimestamp = new Date(latest.last_modified).getTime();
+                    const lastSynced = lastSyncedRef.current;
+
+                    console.log("🔵 Comparing:", latestTimestamp, "vs", lastSynced);
+
+                    // Only sync if there's newer data
+                    if (latestTimestamp > lastSynced) {
+                        console.log("✅ Syncing from backend:", latest.id);
                         const detailRes = await fetch(`http://localhost:8000/api/wireframes/${latest.id}`);
                         const detail = await detailRes.json();
+                        console.log("✅ Detail response:", detail);
 
                         if (detail && detail.components) {
                             // Flatten nested children and transform backend components to frontend nodes
                             const transformedNodes = flattenComponents(detail.components);
-                            console.log("Transformed and flattened nodes:", transformedNodes);
+                            console.log("✅ Transformed and flattened nodes:", transformedNodes);
                             setNodes(transformedNodes);
                             setCurrentWireframeId(latest.id);
-                            lastSyncedRef.current = latest.last_modified || Date.now() / 1000;
+                            lastSyncedRef.current = latestTimestamp;
+                            console.log("✅ Nodes updated! Count:", transformedNodes.length);
                         }
+                    } else {
+                        console.log("⏭️ Skipping - already synced");
                     }
+                } else {
+                    console.log("⚠️ No wireframes found");
                 }
             } catch (err) {
-                console.warn("Polling error:", err.message);
+                console.error("❌ Polling error:", err);
             }
         };
 
         const interval = setInterval(fetchLatestWireframe, 2000);
         fetchLatestWireframe();
-        return () => clearInterval(interval);
-    }, [currentWireframeId]);
+        return () => {
+            console.log("🔴 Polling useEffect cleanup");
+            clearInterval(interval);
+        };
+    }, []);
 
     const handleResizeNode = (id, newSize) => {
         setNodes((prev) =>
