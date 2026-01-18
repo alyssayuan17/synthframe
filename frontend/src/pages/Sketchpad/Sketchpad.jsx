@@ -155,7 +155,8 @@ const Sketchpad = () => {
                     // Backend is now sorted REVERSE (most recent first)
                     const latest = listData.wireframes[0];
 
-                    if (latest.id !== currentWireframeId || latest.last_modified > lastSyncedRef.current) {
+                    // Only sync if there's newer data AND we haven't cleared
+                    if (latest.last_modified > lastSyncedRef.current) {
                         console.log("Syncing from backend:", latest.id);
                         const detailRes = await fetch(`http://localhost:8001/api/wireframes/${latest.id}`);
                         const detail = await detailRes.json();
@@ -307,7 +308,8 @@ const Sketchpad = () => {
     const handleClearWireframe = () => {
         setNodes([]);
         setCurrentWireframeId(null);
-        lastSyncedRef.current = 0;
+        // Set to a very high value so polling won't override with old data
+        lastSyncedRef.current = Date.now() / 1000 + 999999;
     };
 
     const handleUploadSketch = async (base64Image) => {
