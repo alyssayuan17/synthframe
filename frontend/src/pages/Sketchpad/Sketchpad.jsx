@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import TopNavigation from '../../components/TopNavigation';
 import LeftSidebar from '../../components/LeftSidebar';
 import InfiniteCanvas from '../../components/InfiniteCanvas';
+import RightSidebar from '../../components/RightSidebar';
 import { isFrameType as checkIsFrame } from '../../utils/componentTypes';
 import './Sketchpad.css';
 
@@ -133,6 +134,45 @@ const Sketchpad = () => {
         });
     };
 
+    const [currentWireframeId, setCurrentWireframeId] = useState(null);
+    const [rightCollapsed, setRightCollapsed] = useState(false);
+    const lastSyncedRef = React.useRef(0);
+
+    // ===================================
+    // CONNNECTION TO BACKEND (Athena AI)
+    // ===================================
+    React.useEffect(() => {
+        const fetchLatestWireframe = async () => {
+            try {
+                const listRes = await fetch('http://localhost:8001/api/wireframes');
+                const listData = await listRes.json();
+
+                if (listData.wireframes && listData.wireframes.length > 0) {
+                    // Backend is now sorted REVERSE (most recent first)
+                    const latest = listData.wireframes[0];
+
+                    if (latest.id !== currentWireframeId || latest.last_modified > lastSyncedRef.current) {
+                        console.log("Syncing from backend:", latest.id);
+                        const detailRes = await fetch(`http://localhost:8001/api/wireframes/${latest.id}`);
+                        const detail = await detailRes.json();
+
+                        if (detail && detail.components) {
+                            setNodes(detail.components);
+                            setCurrentWireframeId(latest.id);
+                            lastSyncedRef.current = latest.last_modified || Date.now() / 1000;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Polling error:", err.message);
+            }
+        };
+
+        const interval = setInterval(fetchLatestWireframe, 2000);
+        fetchLatestWireframe();
+        return () => clearInterval(interval);
+    }, [currentWireframeId]);
+
     const handleResizeNode = (id, newSize) => {
         setNodes((prev) =>
             prev.map((node) =>
@@ -148,8 +188,35 @@ const Sketchpad = () => {
     });
 
     const getContentClassName = () => {
+        if (leftCollapsed && rightCollapsed) return 'sketchpad-content both-collapsed';
         if (leftCollapsed) return 'sketchpad-content left-collapsed';
+        if (rightCollapsed) return 'sketchpad-content right-collapsed';
         return 'sketchpad-content';
+    };
+
+    const handleClearWireframe = () => {
+        setNodes([]);
+        setCurrentWireframeId(null);
+        lastSyncedRef.current = 0;
+    };
+
+    const handleUploadSketch = async (base64Image) => {
+        try {
+            const response = await fetch('http://localhost:8001/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image_base64: base64Image, prompt: "Analyze this sketch" })
+            });
+            const data = await response.json();
+            if (response.ok && data.components) {
+                // Sync will pick it up, but we can set it optimistically
+                setNodes(data.components);
+                setCurrentWireframeId(data.wireframe_id);
+                lastSyncedRef.current = Date.now() / 1000;
+            }
+        } catch (error) {
+            console.error("Sketch analysis failed:", error);
+        }
     };
 
     return (
@@ -164,6 +231,11 @@ const Sketchpad = () => {
                     onMoveNode={handleMoveNode}
                     onResizeNode={handleResizeNode}
                 />
+                <RightSidebar
+                    currentWireframeId={currentWireframeId}
+                    onClearWireframe={handleClearWireframe}
+                    onUploadSketch={handleUploadSketch}
+                />
             </div>
 
             {/* Left Toggle Bar */}
@@ -177,6 +249,21 @@ const Sketchpad = () => {
                         <polyline points="9 18 15 12 9 6" />
                     ) : (
                         <polyline points="15 18 9 12 15 6" />
+                    )}
+                </svg>
+            </button>
+
+            {/* Right Toggle Bar */}
+            <button
+                className={`side-toggle-bar right-toggle ${rightCollapsed ? 'collapsed' : ''}`}
+                onClick={() => setRightCollapsed(!rightCollapsed)}
+                title={rightCollapsed ? "Show AI Assistant" : "Hide AI Assistant"}
+            >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    {rightCollapsed ? (
+                        <polyline points="15 18 9 12 15 6" />
+                    ) : (
+                        <polyline points="9 18 15 12 9 6" />
                     )}
                 </svg>
             </button>

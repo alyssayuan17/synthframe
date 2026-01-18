@@ -52,7 +52,9 @@ app = FastMCP(
 # Initialize LLM Client
 llm_client = LlmClient()
 
-# In-memory storage for wireframes
+import time
+
+# In-memory database for wireframes
 wireframes_db = {}
 
 
@@ -192,7 +194,9 @@ async def analyze_sketch_logic(image_base64: str, prompt: str = "") -> dict:
 
         # Step 4: Save wireframe
         wireframe_id = refined_wireframe.get("id")
+        refined_wireframe["last_modified"] = time.time()
         wireframes_db[wireframe_id] = refined_wireframe
+        print(f"DATABASE: Saved analyzed sketch as {wireframe_id} at {refined_wireframe['last_modified']}")
 
         return {
             "wireframe_id": wireframe_id,
@@ -229,7 +233,9 @@ async def generate_wireframe_logic(prompt: str, use_scraper: bool = True) -> dic
 
         # Step 3: Save wireframe
         wireframe_id = wireframe_json.get("id")
+        wireframe_json["last_modified"] = time.time()
         wireframes_db[wireframe_id] = wireframe_json
+        print(f"DATABASE: Saved generated wireframe as {wireframe_id} at {wireframe_json['last_modified']}")
 
         return {
             "wireframe_id": wireframe_id,
@@ -278,7 +284,9 @@ async def update_component_logic(wireframe_id: str, instruction: str) -> dict:
         updated_wireframe = update_with_gemini(current_wireframe, instruction)
 
         # Step 3: Save updated wireframe
+        updated_wireframe["last_modified"] = time.time()
         wireframes_db[wireframe_id] = updated_wireframe
+        print(f"DATABASE: Saved updated wireframe {wireframe_id} at {updated_wireframe['last_modified']}")
 
         return {
             "wireframe_id": wireframe_id,
@@ -382,17 +390,29 @@ async def get_wireframe(wireframe_id: str):
 @rest_api.post("/api/wireframes/{wireframe_id}")
 async def save_wireframe(wireframe_id: str, wireframe: dict):
     """Save/update wireframe (for frontend)"""
+    wireframe["last_modified"] = time.time() # Add timestamp on manual save
     wireframes_db[wireframe_id] = wireframe
     return {"status": "saved", "wireframe_id": wireframe_id}
 
 
 @rest_api.get("/api/wireframes")
 async def list_wireframes():
-    """List all wireframes"""
+    """List all wireframes sorted by last_modified"""
+    # Sort IDs by their last_modified timestamp in the DB
+    sorted_items = sorted(
+        wireframes_db.items(), 
+        key=lambda item: item[1].get("last_modified", 0),
+        reverse=True # Sort by most recent first
+    )
+    
     return {
         "wireframes": [
-            {"id": wf_id, "name": wf.get("name", "Untitled")}
-            for wf_id, wf in wireframes_db.items()
+            {
+                "id": wf_id, 
+                "name": wf.get("name", "Untitled"),
+                "last_modified": wf.get("last_modified", 0)
+            }
+            for wf_id, wf in sorted_items
         ]
     }
 

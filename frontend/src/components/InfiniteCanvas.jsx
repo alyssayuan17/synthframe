@@ -61,11 +61,20 @@ const InfiniteCanvas = ({ nodes, onAddNode, onDeleteNode, onMoveNode, onResizeNo
         setIsPanning(false);
     };
 
-    const handleWheel = (e) => {
-        e.preventDefault();
-        const delta = e.deltaY > 0 ? -0.1 : 0.1;
-        setZoom((prevZoom) => Math.min(Math.max(prevZoom + delta, 0.5), 2));
-    };
+    // Fix passive event listener error for wheel event
+    React.useEffect(() => {
+        const element = canvasRef.current;
+        if (!element) return;
+
+        const handleWheelEvent = (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            setZoom((prevZoom) => Math.min(Math.max(prevZoom + delta, 0.5), 2));
+        };
+
+        element.addEventListener('wheel', handleWheelEvent, { passive: false });
+        return () => element.removeEventListener('wheel', handleWheelEvent);
+    }, []);
 
     const handleZoomIn = () => {
         setZoom((prevZoom) => Math.min(prevZoom + 0.1, 2));
@@ -95,7 +104,6 @@ const InfiniteCanvas = ({ nodes, onAddNode, onDeleteNode, onMoveNode, onResizeNo
                 onDrop={handleDrop}
                 onDragLeave={handleDragLeave}
                 onMouseDown={handleMouseDown}
-                onWheel={handleWheel}
                 style={{
                     backgroundImage: 'radial-gradient(circle, #cbd5e1 1px, transparent 1px)',
                     backgroundSize: `${20 * zoom}px ${20 * zoom}px`,
