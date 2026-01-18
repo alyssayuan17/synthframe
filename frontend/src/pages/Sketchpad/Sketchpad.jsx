@@ -133,12 +133,97 @@ const Sketchpad = () => {
         );
     };
 
+    const handleNodeDragStop = (id) => {
+        setNodes((prev) => {
+            const movedNode = prev.find((n) => n.id === id);
+            if (!movedNode) return prev;
+
+            // Case 1: Moved a Frame -> Capture components inside it
+            if (movedNode.isFrame) {
+                const frameRect = {
+                    x: movedNode.position.x,
+                    y: movedNode.position.y,
+                    width: movedNode.size?.width || 200,
+                    height: movedNode.size?.height || 100,
+                };
+
+                return prev.map(n => {
+                    if (n.id === id || n.isFrame) return n; // Skip self/frames
+
+                    const nodeRect = {
+                        x: n.position.x,
+                        y: n.position.y,
+                        width: n.size?.width || 200,
+                        height: n.size?.height || 100
+                    };
+
+                    if (isInsideFrame(nodeRect, frameRect)) {
+                        return {
+                            ...n,
+                            parentId: id,
+                            relativePosition: {
+                                x: n.position.x - frameRect.x,
+                                y: n.position.y - frameRect.y
+                            }
+                        };
+                    }
+                    // Note: We don't detach existing children here because dragging the frame moves them, 
+                    // so they stay inside. Only detach if the CHILD is moved out (Case 2).
+                    return n;
+                });
+            }
+
+            // Case 2: Moved a Component -> Check if dropped on a Frame
+            const nodeRect = {
+                x: movedNode.position.x,
+                y: movedNode.position.y,
+                width: movedNode.size?.width || 200,
+                height: movedNode.size?.height || 100,
+            };
+
+            const targetFrame = prev.find(
+                (n) => n.isFrame && n.id !== id && isInsideFrame(nodeRect, { ...n.position, ...n.size })
+            );
+
+            if (targetFrame) {
+                const relativePosition = {
+                    x: movedNode.position.x - targetFrame.position.x,
+                    y: movedNode.position.y - targetFrame.position.y,
+                };
+
+                return prev.map((n) =>
+                    n.id === id
+                        ? { ...n, parentId: targetFrame.id, relativePosition }
+                        : n
+                );
+            } else {
+                if (movedNode.parentId) {
+                    return prev.map((n) =>
+                        n.id === id ? { ...n, parentId: null, relativePosition: null } : n
+                    );
+                }
+            }
+            return prev;
+        });
+    };
+
     // Sort nodes so frames render first (below other components)
     const sortedNodes = [...nodes].sort((a, b) => {
         if (a.isFrame && !b.isFrame) return -1;
         if (!a.isFrame && b.isFrame) return 1;
         return 0;
     });
+
+    const [connections, setConnections] = useState([]);
+
+    const handleAddConnection = (sourceId, targetId) => {
+        if (connections.some(c => c.sourceId === sourceId && c.targetId === targetId)) return;
+        setConnections(prev => [...prev, {
+            id: Date.now(),
+            sourceId,
+            targetId
+        }]);
+    };
 
     const getContentClassName = () => {
         if (leftCollapsed && rightCollapsed) return 'sketchpad-content both-collapsed';
@@ -158,6 +243,9 @@ const Sketchpad = () => {
                     onDeleteNode={handleDeleteNode}
                     onMoveNode={handleMoveNode}
                     onResizeNode={handleResizeNode}
+                    connections={connections}
+                    onAddConnection={handleAddConnection}
+                    onNodeDragStop={handleNodeDragStop}
                 />
                 <RightSidebar />
             </div>
