@@ -161,12 +161,12 @@ const InputText = () => (
     </div>
 );
 
-const InputWithLabel = () => (
-    <div className="form-control p-4" style={{ width: '100%', height: '100%' }}>
+const InputWithLabel = ({ label, placeholder }) => (
+    <div className="form-control p-4" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <label className="label">
-            <span className="label-text text-black">What is your name?</span>
+            <span className="label-text text-black font-semibold">{label || 'Label'}</span>
         </label>
-        <input type="text" placeholder="Type here" className="input input-bordered w-full h-full" />
+        <input type="text" placeholder={placeholder || 'Type here'} className="input input-bordered w-full" />
     </div>
 );
 
@@ -267,11 +267,11 @@ const BadgeComponent = () => (
     </div>
 );
 
-const BadgeGroup = () => (
-    <div className="flex gap-2 w-full h-full justify-center items-center p-4">
-        <div className="badge badge-primary">Primary</div>
-        <div className="badge badge-secondary">Secondary</div>
-        <div className="badge badge-accent">Accent</div>
+const BadgeGroup = ({ badges }) => (
+    <div className="flex flex-wrap gap-2 w-full h-full justify-center items-center p-4">
+        {(badges && Array.isArray(badges) ? badges : ['Badge 1', 'Badge 2']).map((badge, i) => (
+            <div key={i} className="badge badge-primary">{badge}</div>
+        ))}
     </div>
 );
 
@@ -355,11 +355,11 @@ const PricingComponent = ({ plans }) => (
 // ============================================
 
 const HeroBasic = ({ headline, subheadline, cta }) => (
-    <div className="hero bg-base-200 p-4" style={{ width: '100%', height: '100%' }}>
+    <div className="hero bg-base-200 p-8" style={{ width: '100%', height: '100%' }}>
         <div className="hero-content text-center">
-            <div className="max-w-md">
-                <h1 className="text-5xl font-bold">{headline || 'Hello there'}</h1>
-                <p className="py-6">{subheadline || 'Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi exercitationem quasi.'}</p>
+            <div className="max-w-2xl">
+                <h1 className="text-5xl font-bold text-black">{headline || 'Hero Headline'}</h1>
+                <p className="py-6 text-black/70">{subheadline || 'Hero subheadline description goes here.'}</p>
                 <button className="btn btn-primary">{cta || 'Get Started'}</button>
             </div>
         </div>
@@ -402,6 +402,29 @@ const DrawerComponent = () => (
                 Interactive drawer component
             </div>
         </div>
+    </div>
+);
+
+// ============================================
+// TEXT & HEADING COMPONENTS
+// ============================================
+
+const HeadingComponent = ({ text, level }) => {
+    const Tag = `h${level || 2}`;
+    return (
+        <div className="p-4 flex items-center justify-center w-full h-full">
+            <Tag className={`font-bold text-black ${level === 1 ? 'text-5xl' : level === 2 ? 'text-4xl' : 'text-3xl'}`}>
+                {text || 'Heading'}
+            </Tag>
+        </div>
+    );
+};
+
+const ParagraphComponent = ({ content }) => (
+    <div className="p-4 flex items-center justify-center w-full h-full">
+        <p className="text-black text-center max-w-4xl text-lg">
+            {content || 'This is a paragraph of text content.'}
+        </p>
     </div>
 );
 
@@ -584,11 +607,13 @@ export const COMPONENT_REGISTRY = {
     'FOOTER-SIMPLE': FooterBasic,
     'SIDEBAR': DrawerComponent,
     'BOTTOM_NAV': TabsComponent,
+    'BADGE-GROUP': BadgeGroup,
+    'INPUT-LABEL': InputWithLabel,
     'FORM': InputWithLabel,
     'BUTTON': ButtonPrimary,
     'INPUT': InputText,
-    'TEXT': TextareaComponent,
-    'HEADING': HeroBasic,
+    'TEXT': ParagraphComponent,
+    'HEADING': HeadingComponent,
     'IMAGE': CardWithImage,
     'TABLE': StatsComponent,
     'CALENDAR': CalendarComponent,

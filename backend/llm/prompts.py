@@ -42,7 +42,9 @@ Given a user's request and optional web research context, you must:
 2. Determine which UI components are needed
 3. Calculate precise pixel positions and sizes for each component
 4. Ensure all components fit within the canvas dimensions
-5. Output ONLY a valid JSON object (no markdown, no explanation, no text before or after)
+5. Output ONLY a valid JSON object.
+6. **STRICT: NO CONVERSATIONAL TEXT**. Never say "Here is your wireframe" or "I have modified...". No markdown code blocks. NO explanation before or after.
+7. If your response contains any text other than the JSON object, the system will FAIL.
 
 # TARGET DEVICE CONTEXT
 Device: {device.upper()}
@@ -75,6 +77,8 @@ You must output a JSON object with this EXACT structure:
 # AVAILABLE COMPONENT TYPES (MUST BE UPPERCASE)
 Every component "type" field MUST be one of these EXACT strings:
 
+- BADGE-GROUP: {{"badges": string[]}} (Use for subject tags, skill categories, etc.)
+- INPUT-LABEL: {{"label": string, "placeholder": string}} (Standard input with a label above it)
 - NAVIGATION-BAR: {{"logo": string, "items": string[], "cta": string}}
 - HERO-BANNER: {{"headline": string, "subheadline": string, "cta": string}}
 - FEATURE-GRID: {{"features": [{{"title", "description", "icon"}}]}}
@@ -250,6 +254,7 @@ You must:
 4. Preserve all unrelated components unchanged
 5. Ensure the edited wireframe still follows all rules
 6. Output ONLY the complete updated wireframe JSON (full replacement, not a patch)
+7. **STRICT: NO CONVERSATIONAL TEXT**. Never say "I have updated the wireframe" or "Done". No markdown code blocks. NO explanation before or after. If your response contains any text other than the JSON object, the system will FAIL.
 
 # TARGET DEVICE CONTEXT
 Device: {device.upper()}
