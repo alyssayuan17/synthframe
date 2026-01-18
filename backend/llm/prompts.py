@@ -23,15 +23,11 @@ def get_system_prompt(device_type: str = None) -> str:
     
     # Device-specific layout hints
     layout_hints = {
-        "laptop": "Use horizontal layouts, sidebars are common, multi-column grids work well.",
-        "desktop": "Large canvas allows for complex layouts with multiple sections side by side.",
-        "tablet": "Portrait orientation - stack elements vertically, avoid wide sidebars.",
-        "tablet_landscape": "Landscape tablet - horizontal layouts work, but keep touch targets large.",
-        "phone": "Mobile-first design - single column, large touch targets, bottom navigation is common.",
-        "phone_small": "Compact mobile - prioritize essential content, minimize text, large buttons.",
+        "macbook": "MacBook layout (1440x900). Use horizontal layouts, standard desktop navigation, consider Retina display density.",
+        "iphone": "iPhone layout (393x852). Mobile-first, single column, large touch targets (min 44px), bottom tab bar for navigation.",
     }
     
-    hint = layout_hints.get(device, layout_hints["laptop"])
+    hint = layout_hints.get(device, layout_hints["macbook"])
     
     return f"""You are a UI/UX wireframe generator.
 Given a user's request and optional web research context, output ONLY a JSON object representing a wireframe layout.
@@ -80,9 +76,8 @@ COMPONENT TYPES (use UPPERCASE string values):
 - BOTTOM_NAV: {{items: string[]}}  # For mobile designs
 
 DEVICE-SPECIFIC GUIDELINES:
-- For PHONE/mobile: Use single column layouts, avoid sidebars, use bottom navigation
-- For TABLET: Can use 2 columns, touch-friendly buttons (min 44px height)
-- For LAPTOP/DESKTOP: Full layouts with sidebars, multi-column grids, hover states
+- For IPHONE: Use single column layouts, avoid sidebars, use bottom navigation. Touch targets min 44px.
+- For MACBOOK: Full layouts with sidebars, multi-column grids, hover states allowed. Standard desktop UI.
 
 RULES:
 - ONLY output valid JSON. No markdown. No explanation.
@@ -168,7 +163,7 @@ CANVAS SIZE: {canvas['width']}x{canvas['height']} pixels
 
 COMPONENT TYPES (UPPERCASE):
 - NAVBAR: Navigation bar (logo, links) - typically at top
-- SIDEBAR: Vertical navigation menu - left side on laptop/desktop, avoid on mobile
+- SIDEBAR: Vertical navigation menu - left side on macbook, avoid on iphone
 - HERO: Large banner section - below navbar
 - CARD: Content card - use in grids
 - BUTTON: Clickable button - ensure touch-friendly size on mobile (min 44px)
@@ -180,7 +175,7 @@ COMPONENT TYPES (UPPERCASE):
 - IMAGE: Image placeholder
 - CHART: Chart/graph
 - SECTION: Generic content section
-- BOTTOM_NAV: Mobile bottom navigation - use instead of sidebar on phone
+- BOTTOM_NAV: Mobile bottom navigation - use instead of sidebar on iphone
 
 DETECTED SHAPES:
 {{detected_shapes}}

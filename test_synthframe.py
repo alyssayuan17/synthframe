@@ -142,7 +142,7 @@ def test_text_pipeline(device_type: str = None) -> bool:
     
     Flow: Text prompt → Gemini → WireframeLayout JSON
     """
-    print_header(f"TEXT PIPELINE TEST (device: {device_type or 'laptop'})")
+    print_header(f"TEXT PIPELINE TEST (device: {device_type or 'macbook'})")
     
     all_passed = True
     
@@ -220,7 +220,7 @@ def test_image_pipeline(device_type: str = None) -> bool:
     
     Flow: Image → OpenCV → Component detection → WireframeLayout
     """
-    print_header(f"IMAGE PIPELINE TEST (device: {device_type or 'laptop'})")
+    print_header(f"IMAGE PIPELINE TEST (device: {device_type or 'macbook'})")
     
     all_passed = True
     
@@ -387,8 +387,8 @@ def test_device_types() -> bool:
     
     # Test prompt contains device info
     try:
-        phone_prompt = get_system_prompt("phone")
-        passed = "PHONE" in phone_prompt.upper() and "375" in phone_prompt
+        phone_prompt = get_system_prompt("iphone")
+        passed = "IPHONE" in phone_prompt.upper() and "393" in phone_prompt
         print_result("Prompt includes device info", passed)
         all_passed = all_passed and passed
         
@@ -422,7 +422,7 @@ Examples:
     parser.add_argument("--devices", action="store_true", help="Test device type configurations")
     parser.add_argument("--all", action="store_true", help="Run all tests")
     parser.add_argument("--device", type=str, default=None, 
-                       choices=["laptop", "desktop", "tablet", "tablet_landscape", "phone", "phone_small"],
+                       choices=["macbook", "iphone"],
                        help="Device type to test with")
     
     args = parser.parse_args()
@@ -439,7 +439,7 @@ Examples:
     has_key = bool(os.getenv("GEMINI_API_KEY"))
     print(f"  Mock Mode: {'ON (no API calls)' if mock_mode else 'OFF (using real API)'}")
     print(f"  API Key: {'Set' if has_key else 'Not set'}")
-    print(f"  Device: {args.device or 'laptop (default)'}")
+    print(f"  Device: {args.device or 'macbook (default)'}")
     
     results = []
     

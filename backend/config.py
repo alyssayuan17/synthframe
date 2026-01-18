@@ -95,16 +95,12 @@ ENABLE_SCRAPER_DEFAULT: bool = True
 # Canvas dimensions for different device types
 # Used by both CV pipeline and Gemini generation
 DEVICE_CANVAS_SIZES: dict = {
-    "laptop": {"width": 1440, "height": 900},
-    "desktop": {"width": 1920, "height": 1080},
-    "tablet": {"width": 768, "height": 1024},
-    "tablet_landscape": {"width": 1024, "height": 768},
-    "phone": {"width": 375, "height": 812},
-    "phone_small": {"width": 320, "height": 568},
+    "macbook": {"width": 1440, "height": 900},
+    "iphone": {"width": 393, "height": 852},  # iPhone 14/15 Pro dimensions
 }
 
 # Default device type if not specified
-DEFAULT_DEVICE_TYPE: str = "laptop"
+DEFAULT_DEVICE_TYPE: str = "macbook"
 
 
 # ===========================================
