@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import UploadWidget from './widgets/UploadWidget';
 import StatusWidget from './widgets/StatusWidget';
 
-const RightSidebar = ({ currentWireframeId, onClearWireframe, onUploadSketch }) => {
+const RightSidebar = ({ currentWireframeId, onClearWireframe, onUploadSketch, hasNodes }) => {
     const [showUpload, setShowUpload] = useState(false);
     const [status, setStatus] = useState(null); // 'processing', 'success', 'error'
     const [statusData, setStatusData] = useState({});
@@ -29,7 +29,7 @@ const RightSidebar = ({ currentWireframeId, onClearWireframe, onUploadSketch }) 
                         <span className="status-text">Athena Online</span>
                     </div>
                 </div>
-                {currentWireframeId && (
+                {hasNodes && (
                     <button className="clear-chip-btn" onClick={onClearWireframe} title="Start Fresh">
                         Clear Canvas
                     </button>

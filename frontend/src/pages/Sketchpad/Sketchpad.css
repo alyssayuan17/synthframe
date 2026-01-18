@@ -89,9 +89,15 @@
     font-size: 14px;
 }
 
-.nav-btn:hover {
+.nav-btn:hover:not(:disabled) {
     background-color: rgba(255, 255, 255, 0.1);
     border-color: var(--color-slate-300);
+}
+
+.nav-btn:disabled,
+.nav-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 .publish-btn {
