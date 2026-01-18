@@ -15,7 +15,7 @@ Or for production:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.routes import health, generate, edit, scrape, vision, critique, projects
+from backend.routes import health, generate, edit, scrape, vision, critique, hybrid
 from backend.config import settings
 from backend.database import close_mongo_connection, ping_database
 
@@ -31,6 +31,7 @@ app = FastAPI(
     ## Features
     - **Text → Wireframe**: Describe a UI and get a wireframe
     - **Sketch → Wireframe**: Upload a hand-drawn sketch
+    - **Text + Sketch → Wireframe**: Combine both for best results (NEW!)
     - **Edit**: Modify wireframes with natural language
     - **Projects**: Save, load, and manage wireframe projects (MongoDB)
     - **Critique**: Get design suggestions (coming soon)
@@ -80,6 +81,9 @@ app.include_router(vision.router)
 
 # Design critique (stub for now)
 app.include_router(critique.router)
+
+# Hybrid text + image generation
+app.include_router(hybrid.router)
 
 # Project management (MongoDB persistence)
 app.include_router(projects.router)
