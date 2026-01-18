@@ -9,6 +9,7 @@ const Sketchpad = () => {
     const [nodes, setNodes] = useState([]);
     const [leftCollapsed, setLeftCollapsed] = useState(false);
     const [rightCollapsed, setRightCollapsed] = useState(false);
+    const [selectedNodeId, setSelectedNodeId] = useState(null);
 
     const getDefaultSize = (type) => {
         if (type === 'macbook-frame') {
@@ -75,6 +76,9 @@ const Sketchpad = () => {
 
     const handleDeleteNode = (id) => {
         setNodes((prev) => prev.filter((node) => node.id !== id));
+        if (selectedNodeId === id) {
+            setSelectedNodeId(null);
+        }
     };
 
 
@@ -214,6 +218,22 @@ const Sketchpad = () => {
         return 0;
     });
 
+    // Handle keyboard events for deleting selected node
+    React.useEffect(() => {
+        const handleKeyDown = (e) => {
+            if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId) {
+                // Prevent default backspace navigation
+                e.preventDefault();
+                handleDeleteNode(selectedNodeId);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [selectedNodeId]);
+
     const [connections, setConnections] = useState([]);
 
     const handleAddConnection = (sourceId, targetId) => {
@@ -246,6 +266,8 @@ const Sketchpad = () => {
                     connections={connections}
                     onAddConnection={handleAddConnection}
                     onNodeDragStop={handleNodeDragStop}
+                    selectedNodeId={selectedNodeId}
+                    onSelectNode={setSelectedNodeId}
                 />
                 <RightSidebar />
             </div>

@@ -334,6 +334,17 @@
     /* Keep frame fully visible when dragging but below regular components */
 }
 
+/* Selected node styling */
+.canvas-node-wrapper.selected {
+    border-color: var(--color-electric-blue);
+    border-width: 2px;
+    z-index: 100;
+}
+
+.canvas-node-wrapper.selected .node-label {
+    opacity: 1;
+}
+
 
 /* Floating Label Above Component - AlwaysVisible */
 .node-label {

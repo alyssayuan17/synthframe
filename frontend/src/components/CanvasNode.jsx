@@ -46,7 +46,7 @@ const getIconForType = (type) => {
     return <HeaderIcon />;
 };
 
-const CanvasNode = ({ id, type, position, size, isFrame, onDelete, onMove, onResize, onConnectStart, onConnectEnd, onDragEnd }) => {
+const CanvasNode = ({ id, type, position, size, isFrame, onDelete, onMove, onResize, onConnectStart, onConnectEnd, onDragEnd, isSelected, onSelect }) => {
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -56,6 +56,12 @@ const CanvasNode = ({ id, type, position, size, isFrame, onDelete, onMove, onRes
     const handleMouseDown = (e) => {
         if (e.target.closest('.delete-btn') || e.target.closest('.resize-handle') || e.target.closest('.connection-point')) return;
         if (['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'LABEL', 'OPTION'].includes(e.target.tagName)) return;
+
+        // Select this node when clicked
+        if (onSelect) {
+            onSelect(id);
+        }
+
         setIsDragging(true);
         setDragOffset({
             x: e.clientX - position.x,
@@ -150,7 +156,7 @@ const CanvasNode = ({ id, type, position, size, isFrame, onDelete, onMove, onRes
     return (
         <div
             ref={nodeRef}
-            className={`canvas-node-wrapper ${isDragging ? 'dragging' : ''} ${isFrame ? 'frame-node' : ''}`}
+            className={`canvas-node-wrapper ${isDragging ? 'dragging' : ''} ${isFrame ? 'frame-node' : ''} ${isSelected ? 'selected' : ''}`}
             style={nodeStyle}
             onMouseUp={handleMouseUpOnNode}
         >
