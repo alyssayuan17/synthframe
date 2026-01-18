@@ -14,8 +14,11 @@ import json
 import base64
 from pathlib import Path
 
-# Add backend to path
-sys.path.insert(0, str(Path(__file__).parent))
+# Add backend and project root to path
+backend_path = Path(__file__).parent
+project_root = backend_path.parent
+sys.path.insert(0, str(backend_path))
+sys.path.insert(0, str(project_root))
 
 def test_health_check():
     """Test that server modules can be imported"""

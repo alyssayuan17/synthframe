@@ -16,6 +16,14 @@ Usage:
 
 import json
 from typing import Optional, Dict, Any
+import sys
+import os
+from pathlib import Path
+
+# Add project root to python path so we can import 'backend.config'
+# This allows running 'python backend/server.py' from project root
+sys.path.append(str(Path(__file__).parent.parent))
+
 from mcp.server.fastmcp import FastMCP
 from mcp.server.stdio import stdio_server
 
@@ -27,7 +35,19 @@ from llm.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE, EDIT_SYSTEM_PROMPT
 from llm.json_repair import parse_json
 
 # Initialize MCP server
-app = FastMCP("synthframe")
+from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
+
+# Initialize MCP server with permissive security for tunnel access
+# We need to allow the tunnel hostname (e.g. *.loca.lt, *.ngrok-free.app)
+app = FastMCP(
+    "synthframe",
+    transport_security=TransportSecuritySettings(
+        enable_dns_rebinding_protection=False,
+        allowed_hosts=["*"],
+        allowed_origins=["*"]
+    )
+)
 
 # Initialize LLM Client
 llm_client = LlmClient()
@@ -398,19 +418,20 @@ if __name__ == "__main__":
     print("  1. analyze_sketch - Convert sketches to wireframes (CV + AI)")
     print("  2. generate_wireframe - Generate from text prompts (AI + scraper)")
     print("  3. update_component - Modify existing wireframes (AI)")
-    print("\nREST API running on http://localhost:8000")
+    print("\nREST API running on http://localhost:8001")
+    print("MCP Server (SSE) running on http://localhost:8000/sse")
     print("  GET  /api/wireframes/{id} - Fetch wireframe")
     print("  POST /api/wireframes/{id} - Save wireframe")
     print("  GET  /health - Health check")
     print("\n" + "=" * 60)
 
-    # Run REST API in background thread
+    # Run REST API in background thread (moved to 8001)
     Thread(target=lambda: uvicorn.run(
         rest_api,
         host="0.0.0.0",
-        port=8000,
-        log_level="info"
+        port=8001,
+        log_level="error"
     ), daemon=True).start()
 
-    # Run MCP server in main thread (stdio for Athena)
-    asyncio.run(stdio_server(app))
+    # Run MCP server (SSE mode for Athena web UI)
+    app.run(transport='sse')
