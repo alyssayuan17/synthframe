@@ -41,38 +41,64 @@ def fix_overlapping_components(layout: WireframeLayout) -> WireframeLayout:
 
     SPACING = 0  # Edge-to-edge for seamless webpage look
 
+    # Helper to get numeric value from size (handles "100%" string)
+    def get_pixel_value(val: float | str, total: float) -> float:
+        if isinstance(val, (int, float)):
+            return float(val)
+        if isinstance(val, str) and "%" in val:
+            try:
+                percent = float(val.replace("%", "")) / 100.0
+                return total * percent
+            except ValueError:
+                pass
+        # Fallback for "auto" or invalid strings
+        return 0.0
+
     # Separate full-width components (stack vertically) from positioned ones (like sidebar)
     full_width_components = []
     positioned_components = []
 
     canvas_width = layout.canvas_size.width if layout.canvas_size else 1440
+    # Ensure canvas_width is a number
+    if isinstance(canvas_width, str):
+        canvas_width = 1440.0
 
     for comp in layout.components:
-        # Consider component "full width" if it spans > 70% of canvas
-        comp_width = comp.size.get("width", 200) if comp.size else 200
-        comp_x = comp.position.get("x", 0) if comp.position else 0
+        # Access Pydantic fields directly (no .get())
+        width_val = comp.size.width if comp.size else 200
+        comp_width = get_pixel_value(width_val, canvas_width)
+        
+        x_val = comp.position.x if comp.position else 0
+        comp_x = float(x_val)
 
-        if comp_width > canvas_width * 0.7 or comp_x == 0 and comp_width > canvas_width * 0.5:
+        # Consider component "full width" if it spans > 70% of canvas
+        if comp_width > canvas_width * 0.7 or (comp_x == 0 and comp_width > canvas_width * 0.5):
             full_width_components.append(comp)
         else:
             positioned_components.append(comp)
 
     # Sort full-width components by Y position
-    full_width_components.sort(key=lambda c: c.position.get("y", 0) if c.position else 0)
+    full_width_components.sort(key=lambda c: c.position.y if c.position else 0)
 
     # Fix overlaps in full-width components
-    current_y = 0
+    current_y = 0.0
     for comp in full_width_components:
-        comp_y = comp.position.get("y", 0) if comp.position else 0
-        comp_height = comp.size.get("height", 100) if comp.size else 100
+        comp_y = comp.position.y if comp.position else 0.0
+        
+        height_val = comp.size.height if comp.size else 100
+        # For height, we can't easily resolve % relative to canvas height as it might scroll
+        # So we default to 100px for "auto" or complex strings
+        comp_height = height_val if isinstance(height_val, (int, float)) else 100.0
 
         # If this component starts before the current_y, it's overlapping
         if comp_y < current_y:
             logger.info(f"Fixing overlap: {comp.id} moved from y={comp_y} to y={current_y}")
-            comp.position["y"] = current_y
+            # Direct assignment to Pydantic model
+            if comp.position:
+                comp.position.y = float(current_y)
 
         # Update current_y for next component
-        actual_y = comp.position.get("y", 0)
+        actual_y = comp.position.y if comp.position else 0.0
         current_y = actual_y + comp_height + SPACING
 
     # Combine and return
