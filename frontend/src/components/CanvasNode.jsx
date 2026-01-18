@@ -247,21 +247,21 @@ const CanvasNode = ({ id, type, position, size, props, isFrame, onDelete, onMove
             </div>
 {/* Floating title label - hidden to avoid duplicate with node-header */}
 
-            {/* Render actual interactive component */}
-            {!isFrame && (() => {
+            {/* Render actual interactive component - same for frames and non-frames */}
+            {(() => {
                 const Component = getComponentByType(type);
                 return Component ? (
-                    <div className="node-component" onMouseDown={handleMouseDown} style={{ width: '100%', height: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+                    <div className={isFrame ? "frame-content" : "node-component"} onMouseDown={handleMouseDown} style={{ width: '100%', height: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
                         <Component {...(props || {})} />
                     </div>
-                ) : null;
+                ) : (
+                    isFrame ? (
+                        <div className="frame-content" onMouseDown={handleMouseDown}>
+                            <div className="frame-screen"></div>
+                        </div>
+                    ) : null
+                );
             })()}
-
-            {isFrame && (
-                <div className="frame-content" onMouseDown={handleMouseDown}>
-                    <div className="frame-screen"></div>
-                </div>
-            )}
 
             {/* Connection Points - Visible for ALL components including frames */}
             <div className="connection-points">
