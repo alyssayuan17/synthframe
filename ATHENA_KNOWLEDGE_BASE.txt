@@ -1,44 +1,38 @@
 # SynthFrame Wireframe Knowledge Base
 
-This document defines the component specification for Athena AI to generate wireframes. Use these EXACT types and property structures.
+This document defines the component specification for Athena AI. Use these EXACT types and property structures.
 
-## Wireframe JSON Format
-
-All wireframes must use this structure:
-
-```json
-{
-  "id": "layout-unique-id",
-  "name": "Descriptive Name",
-  "canvas_size": {"width": 1440, "height": 900},
-  "background_color": "#ffffff",
-  "source_type": "prompt",
-  "device_type": "macbook",
-  "components": [...]
-}
-```
-
-## Component Types (17 types - UPPERCASE)
+## Component Types (UPPERCASE)
 
 | Type | Props | Description |
 |------|-------|-------------|
-| NAVBAR | `{"logo": string, "links": string[], "cta": string}` | Top navigation bar |
-| SIDEBAR | `{"items": string[]}` | Vertical side menu (desktop) |
-| FOOTER | `{"copyright": string, "links": string[]}` | Bottom section |
+| NAVIGATION-BAR | `{"logo": string, "items": string[], "cta": string}` | Top navigation bar |
+| HERO-BANNER | `{"headline": string, "subheadline": string, "cta": string}` | Large banner section |
+| FEATURE-GRID | `{"features": [{"title", "description", "icon"}]}` | Grid of feature cards |
+| CONTENT-BLOCK | `{"title": string, "content": string, "imagePosition": "left"|"right"}` | Text + Image block |
+| GALLERY-GRID | `{"images": string[]}` | Matrix of image placeholders |
+| TESTIMONIAL-SLIDER | `{"testimonials": [{"name", "role", "quote"}]}` | Customer reviews slider |
+| PRICING-TABLE | `{"plans": [{"name", "price", "features"}]}` | Pricing tiers comparison |
+| CALL-TO-ACTION | `{"headline": string, "buttonText": string}` | Final nudge to convert |
+| FOOTER-SIMPLE | `{"copyright": string, "links": string[]}` | Bottom legal/links section |
+| SIDEBAR | `{"items": string[]}` | Vertical side menu |
 | BOTTOM_NAV | `{"items": string[]}` | Mobile bottom navigation |
-| HERO | `{"headline": string, "subheadline": string, "cta": string}` | Large banner section |
-| SECTION | `{"title": string, "content": string}` | Generic content section |
-| CARD | `{"title": string, "content": string}` | Content card |
-| FORM | `{"fields": [{"label", "type", "placeholder"}], "submit": string}` | Input form |
-| BUTTON | `{"label": string, "variant": "primary"|"secondary"}` | Clickable button |
-| INPUT | `{"placeholder": string, "type": string}` | Single input field |
-| TEXT | `{"content": string}` | Paragraph text |
-| HEADING | `{"text": string, "level": 1-6}` | Title/heading text |
-| IMAGE | `{"alt": string, "src": string}` | Image placeholder |
-| TABLE | `{"columns": string[], "rows": number}` | Data table |
-| CALENDAR | `{"view": "month"|"week"}` | Calendar widget |
-| CHART | `{"type": "bar"|"line"|"pie", "title": string}` | Chart/graph |
-| FRAME | `{"device": string, "width": number, "height": number}` | Device container (Macbook/iPhone) |
+| FORM | `{"fields": [{"label", "type", "placeholder"}], "submit": string}` | Input collection form |
+| BUTTON | `{"label": string, "variant": "primary"|"secondary"}` | Clickable action |
+| INPUT | `{"placeholder": string, "type": string}` | Single data entry field |
+| TEXT | `{"content": string}` | Long-form reading text |
+| HEADING | `{"text": string, "level": 1-6}` | Visual hierarchy title |
+| IMAGE | `{"alt": string, "src": string}` | Graphic element placeholder |
+| TABLE | `{"columns": string[], "rows": number}` | Structured data display |
+| CALENDAR | `{"view": "month"|"week"}` | Date picking/viewing widget |
+| CHART | `{"type": "bar"|"line"|"pie", "title": string}` | Data visualization |
+| FRAME | `{"device": string, "width": number, "height": number}` | Browser/Phone container |
+
+## Rules
+1. Component types MUST be UPPERCASE and use dashes (e.g., "HERO-BANNER").
+2. Standard layouts should follow: NAVIGATION-BAR -> HERO-BANNER -> CONTENT-BLOCK -> FEATURE-GRID -> FOOTER-SIMPLE.
+3. For mobile, use BOTTOM_NAV and single-column layouts.
+4. Every component needs a unique `id` and appropriate `size`/`position`.
 
 ## Component Structure
 

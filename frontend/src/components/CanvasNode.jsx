@@ -126,7 +126,7 @@ const getIconForType = (type) => {
     return ICON_MAP[category] || ICON_MAP.default;
 };
 
-const CanvasNode = ({ id, type, position, size, isFrame, onDelete, onMove, onResize, onConnectStart, onConnectEnd, onDragEnd, isSelected, onSelect }) => {
+const CanvasNode = ({ id, type, position, size, props, isFrame, onDelete, onMove, onResize, onConnectStart, onConnectEnd, onDragEnd, isSelected, onSelect }) => {
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -256,7 +256,7 @@ const CanvasNode = ({ id, type, position, size, isFrame, onDelete, onMove, onRes
                 const Component = getComponentByType(type);
                 return Component ? (
                     <div className="node-component p-2" onMouseDown={handleMouseDown} style={{ width: '100%', height: '100%', boxSizing: 'border-box' }}>
-                        <Component />
+                        <Component {...(props || {})} />
                     </div>
                 ) : null;
             })()}

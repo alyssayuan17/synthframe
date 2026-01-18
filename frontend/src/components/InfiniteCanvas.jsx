@@ -268,6 +268,7 @@ const InfiniteCanvas = ({ nodes, onAddNode, onDeleteNode, onMoveNode, onResizeNo
                             type={node.type}
                             position={node.position}
                             size={node.size}
+                            props={node.props}
                             isFrame={node.isFrame}
                             onDelete={onDeleteNode}
                             onMove={onMoveNode}

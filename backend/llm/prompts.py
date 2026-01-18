@@ -75,10 +75,15 @@ You must output a JSON object with this EXACT structure:
 # AVAILABLE COMPONENT TYPES (MUST BE UPPERCASE)
 Every component "type" field MUST be one of these EXACT strings:
 
-- NAVBAR: {{"logo": string, "links": string[], "cta": string}}
-- HERO: {{"headline": string, "subheadline": string, "cta": string}}
-- SECTION: {{"title": string, "content": string}}
-- CARD: {{"title": string, "content": string}}
+- NAVIGATION-BAR: {{"logo": string, "items": string[], "cta": string}}
+- HERO-BANNER: {{"headline": string, "subheadline": string, "cta": string}}
+- FEATURE-GRID: {{"features": [{{"title", "description", "icon"}}]}}
+- CONTENT-BLOCK: {{"title": string, "content": string, "imagePosition": "left"|"right"}}
+- GALLERY-GRID: {{"images": string[]}}
+- TESTIMONIAL-SLIDER: {{"testimonials": [{{"name", "role", "quote"}}]}}
+- PRICING-TABLE: {{"plans": [{{"name", "price", "features"}}]}}
+- CALL-TO-ACTION: {{"headline": string, "buttonText": string}}
+- FOOTER-SIMPLE: {{"copyright": string, "links": string[]}}
 - FORM: {{"fields": [{{"label", "type", "placeholder"}}], "submit": string}}
 - BUTTON: {{"label": string, "variant": "primary"|"secondary"}}
 - INPUT: {{"placeholder": string, "type": string}}
@@ -89,7 +94,6 @@ Every component "type" field MUST be one of these EXACT strings:
 - CALENDAR: {{"view": "month"|"week"}}
 - CHART: {{"type": "bar"|"line"|"pie", "title": string}}
 - SIDEBAR: {{"items": string[]}}
-- FOOTER: {{"copyright": string, "links": string[]}}
 - BOTTOM_NAV: {{"items": string[]}}
 - FRAME: {{"device": string, "width": number, "height": number}}
 
