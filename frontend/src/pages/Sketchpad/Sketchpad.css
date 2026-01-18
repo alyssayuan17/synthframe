@@ -351,11 +351,6 @@
     /* Keep frame fully visible when dragging but below regular components */
 }
 
-/* Selected frames stay behind regular components */
-.canvas-node-wrapper.frame-node.selected {
-    z-index: 6;
-}
-
 /* Selected node styling */
 .canvas-node-wrapper.selected {
     border-color: var(--color-electric-blue);
