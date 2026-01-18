@@ -8,7 +8,7 @@ from .wireframe import WireframeLayout
 
 
 # Valid device types for wireframe generation
-DeviceType = Literal["laptop", "desktop", "tablet", "tablet_landscape", "phone", "phone_small"]
+DeviceType = Literal["macbook", "iphone"]
 
 
 class ImageUploadRequest(BaseModel):
@@ -23,7 +23,7 @@ class ImageUploadRequest(BaseModel):
     name: str = Field(default="Untitled Wireframe", description="Name for the wireframe")
     device_type: Optional[DeviceType] = Field(
         default=None,
-        description="Target device type (laptop, tablet, phone). Defaults to laptop."
+        description="Target device type (macbook, iphone). Defaults to macbook."
     )
     use_gemini_refinement: bool = Field(
         default=True,
@@ -51,7 +51,7 @@ class GenerateRequest(BaseModel):
     )
     device_type: Optional[DeviceType] = Field(
         default=None,
-        description="Target device type (laptop, tablet, phone). Defaults to laptop."
+        description="Target device type (macbook, iphone). Defaults to macbook."
     )
 
 
