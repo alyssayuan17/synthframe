@@ -39,6 +39,10 @@
     transition: opacity 0.2s ease;
 }
 
+.gallery-brand span {
+    font-style: oblique 8deg;
+}
+
 .gallery-brand:hover {
     opacity: 0.8;
 }

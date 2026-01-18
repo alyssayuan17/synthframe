@@ -37,6 +37,10 @@
     gap: 12px;
 }
 
+.landing-brand span {
+    font-style: oblique 8deg;
+}
+
 .landing-brand .brand-logo {
     height: 32px;
     width: auto;
