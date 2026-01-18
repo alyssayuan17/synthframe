@@ -108,8 +108,10 @@ class LlmClient:
         Return a sample dashboard in WireframeLayout format (pixel-based).
         Uses UPPERCASE component types to match CV pipeline.
         """
+        import uuid
+        mock_id = f"layout-mock-{uuid.uuid4().hex[:4]}"
         return json.dumps({
-            "id": "layout-mock-001",
+            "id": mock_id,
             "name": "SaaS Dashboard",
             "canvas_size": {"width": 1440, "height": 900},
             "background_color": "#f5f5f5",

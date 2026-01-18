@@ -109,7 +109,7 @@ async def generate_wireframe(prompt: str, use_scraper: bool = True) -> dict:
         "components": components,
         "wireframe_id": layout.id or "new_layout",
         "canvas_size": layout.canvas_size.model_dump() if layout.canvas_size else {"width": 1440, "height": 900},
-        "updated_at": datetime.utcnow().isoformat()
+        "updated_at": datetime.utcnow().isoformat() + "Z"
     }
     save_latest_wireframe(wireframe_data)
     print(f"🔧 Saved wireframe to {WIREFRAME_CACHE_FILE}")
@@ -318,28 +318,30 @@ async def get_wireframes():
 async def test_create_wireframe():
     """Test endpoint to manually create a wireframe file"""
     from datetime import datetime
+    import uuid
+    test_id = f"test_wireframe_{uuid.uuid4().hex[:4]}"
     test_data = {
         "components": [
             {
                 "id": "test-nav",
                 "type": "NAVBAR",
-                "position": {"x": 0, "y": 0},
-                "size": {"width": 1440, "height": 64},
-                "props": {"logo": "Test", "links": ["Home", "About"]},
+                "position": {"x": 0.0, "y": 0.0},
+                "size": {"width": 1440.0, "height": 64.0},
+                "props": {"logo": "Test App", "links": ["Home", "About"]},
                 "source": "test"
             },
             {
                 "id": "test-hero",
                 "type": "HERO",
-                "position": {"x": 0, "y": 64},
-                "size": {"width": 1440, "height": 300},
-                "props": {"headline": "Test Headline", "cta": "Click Me"},
+                "position": {"x": 0.0, "y": 64.0},
+                "size": {"width": 1440.0, "height": 500.0},
+                "props": {"headline": "It Works!", "subheadline": "Components are now syncing correctly."},
                 "source": "test"
             }
         ],
-        "wireframe_id": "test_wireframe_123",
+        "wireframe_id": test_id,
         "canvas_size": {"width": 1440, "height": 900},
-        "updated_at": datetime.utcnow().isoformat()
+        "updated_at": datetime.utcnow().isoformat() + "Z"
     }
     save_latest_wireframe(test_data)
     return {"message": "Test wireframe created", "file": str(WIREFRAME_CACHE_FILE)}

@@ -107,11 +107,30 @@ const Sketchpad = () => {
         }
     };
 
+    // Track polling state with refs to avoid useEffect dependency churn
+    const lastSyncedRef = React.useRef(0);
+    const clearedWireframeRef = React.useRef(null);
+    const currentWireframeIdRef = React.useRef(null);
+
+    // Sync ref to state
+    React.useEffect(() => {
+        currentWireframeIdRef.current = currentWireframeId;
+    }, [currentWireframeId]);
+
+    // Log whenever nodes change
+    React.useEffect(() => {
+        console.log(`📊 Nodes state changed! Count: ${nodes.length}`, nodes);
+    }, [nodes]);
+
     // Listen for wireframe updates from Athena AI
     React.useEffect(() => {
         const handleAthenaUpdate = (event) => {
-            if (event.detail && event.detail.components) {
+            console.log("🔔 Received athena-wireframe-update event", event.detail);
+            if (event.detail && event.detail.components && event.detail.components.length > 0) {
+                console.log("✅ Applying nodes from Athena event");
                 setNodes(event.detail.components);
+            } else if (event.detail && event.detail.components && event.detail.components.length === 0) {
+                console.log("⚠️ Ignoring empty components from Athena event");
             }
         };
 
@@ -122,7 +141,8 @@ const Sketchpad = () => {
     // Expose setNodes to window for Athena to call directly if needed
     React.useEffect(() => {
         window.synthframeUpdateCanvas = (components) => {
-            if (components && Array.isArray(components)) {
+            console.log("📞 window.synthframeUpdateCanvas called", components);
+            if (components && Array.isArray(components) && components.length > 0) {
                 setNodes(components);
             }
         };
@@ -231,8 +251,6 @@ const Sketchpad = () => {
         });
     };
 
-    const lastSyncedRef = React.useRef(0);
-    const clearedWireframeRef = React.useRef(null);
 
     // Helper to transform backend components to frontend node format
     const transformBackendComponentToNode = (comp, index) => {
@@ -283,56 +301,45 @@ const Sketchpad = () => {
     // CONNNECTION TO BACKEND (Athena AI)
     // ===================================
     React.useEffect(() => {
-        console.log("🔵 Polling useEffect started");
+        console.log("🔵 Polling useEffect started (dependency: [])");
 
         const fetchLatestWireframe = async () => {
             try {
-                console.log("🔵 Fetching wireframes list...");
                 const listRes = await fetch('http://localhost:8000/api/wireframes');
+                if (!listRes.ok) return;
                 const listData = await listRes.json();
-                console.log("🔵 Wireframes list:", listData);
 
                 if (listData.wireframes && listData.wireframes.length > 0) {
-                    // Backend is now sorted REVERSE (most recent first)
                     const latest = listData.wireframes[0];
-                    console.log("🔵 Latest wireframe:", latest);
-                    console.log("🔵 lastSyncedRef:", lastSyncedRef.current);
-                    console.log("🔵 latest.last_modified:", latest.last_modified);
-                    console.log("🔵 clearedWireframeRef:", clearedWireframeRef.current);
 
                     // Skip if this is the wireframe we just cleared
                     if (latest.id === clearedWireframeRef.current) {
-                        console.log("⏭️ Skipping cleared wireframe:", latest.id);
                         return;
                     }
 
-                    // Convert ISO timestamp to comparable number
-                    const latestTimestamp = new Date(latest.last_modified).getTime();
+                    // Convert ISO timestamp to comparable number (handle missing Z)
+                    const normalizedModified = latest.last_modified.endsWith('Z')
+                        ? latest.last_modified
+                        : latest.last_modified + 'Z';
+                    const latestTimestamp = new Date(normalizedModified).getTime();
                     const lastSynced = lastSyncedRef.current;
+                    const idChanged = latest.id !== currentWireframeIdRef.current;
 
-                    console.log("🔵 Comparing:", latestTimestamp, "vs", lastSynced);
-
-                    // Only sync if there's newer data
-                    if (latestTimestamp > lastSynced) {
-                        console.log("✅ Syncing from backend:", latest.id);
+                    // Sync if there's newer data OR the ID has changed
+                    if (latestTimestamp > lastSynced || idChanged) {
+                        console.log(`✅ Polling Sync: ${latest.id} (Timestamp: ${latestTimestamp} > ${lastSynced}, ID Changed: ${idChanged})`);
                         const detailRes = await fetch(`http://localhost:8000/api/wireframes/${latest.id}`);
+                        if (!detailRes.ok) return;
                         const detail = await detailRes.json();
-                        console.log("✅ Detail response:", detail);
 
                         if (detail && detail.components) {
-                            // Flatten nested children and transform backend components to frontend nodes
                             const transformedNodes = flattenComponents(detail.components);
-                            console.log("✅ Transformed and flattened nodes:", transformedNodes);
+                            console.log(`✅ Transformed ${transformedNodes.length} nodes from backend`);
                             setNodes(transformedNodes);
                             setCurrentWireframeId(latest.id);
                             lastSyncedRef.current = latestTimestamp;
-                            console.log("✅ Nodes updated! Count:", transformedNodes.length);
                         }
-                    } else {
-                        console.log("⏭️ Skipping - already synced");
                     }
-                } else {
-                    console.log("⚠️ No wireframes found");
                 }
             } catch (err) {
                 console.error("❌ Polling error:", err);
@@ -341,10 +348,7 @@ const Sketchpad = () => {
 
         const interval = setInterval(fetchLatestWireframe, 2000);
         fetchLatestWireframe();
-        return () => {
-            console.log("🔴 Polling useEffect cleanup");
-            clearInterval(interval);
-        };
+        return () => clearInterval(interval);
     }, []);
 
     const handleResizeNode = (id, newSize) => {
@@ -489,6 +493,7 @@ const Sketchpad = () => {
     const handleClearWireframe = () => {
         // Track which wireframe we're clearing so polling skips it
         clearedWireframeRef.current = currentWireframeId;
+        lastSyncedRef.current = 0; // Reset sync timestamp
         setNodesWithHistory([]);
         setCurrentWireframeId(null);
     };
