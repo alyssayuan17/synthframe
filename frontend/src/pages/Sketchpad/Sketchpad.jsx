@@ -9,6 +9,46 @@ const Sketchpad = () => {
     const [nodes, setNodes] = useState([]);
     const [leftCollapsed, setLeftCollapsed] = useState(false);
     const [rightCollapsed, setRightCollapsed] = useState(false);
+    const [currentWireframeId, setCurrentWireframeId] = useState(null);
+
+    // ===================================
+    // CONNNECTION TO BACKEND (Athena AI)
+    // ===================================
+    React.useEffect(() => {
+        const fetchLatestWireframe = async () => {
+            try {
+                // 1. Get list of wireframes
+                const listRes = await fetch('http://localhost:8001/api/wireframes');
+                const listData = await listRes.json();
+
+                if (listData.wireframes && listData.wireframes.length > 0) {
+                    // 2. Get the most recent one (last in the list likely, or just pick the last modified)
+                    const latest = listData.wireframes[listData.wireframes.length - 1];
+
+                    // Only fetch details if it's new or we haven't loaded one yet
+                    // Note: In a real app, we'd check timestamps. Here we just re-fetch to catch updates (Flow 3)
+
+                    const detailRes = await fetch(`http://localhost:8001/api/wireframes/${latest.id}`);
+                    const detail = await detailRes.json();
+
+                    if (detail && detail.components) {
+                        // Update state if different (simple check)
+                        setNodes(detail.components);
+                        setCurrentWireframeId(latest.id);
+                    }
+                }
+            } catch (err) {
+                console.error("Error polling backend:", err);
+            }
+        };
+
+        // Fetch only once on mount to restore state
+        fetchLatestWireframe();
+
+        // Polling removed to prevent conflict with local drag-and-drop state.
+        // User edits (drag/resize) update local state.
+        // AI updates trigger setNodes via onWireframeUpdate callback.
+    }, []);
 
     const getDefaultSize = (type) => {
         if (type === 'macbook-frame') {
@@ -159,7 +199,17 @@ const Sketchpad = () => {
                     onMoveNode={handleMoveNode}
                     onResizeNode={handleResizeNode}
                 />
-                <RightSidebar />
+                <RightSidebar
+                    currentWireframeId={currentWireframeId}
+                    onWireframeUpdate={(components, wireframeId) => {
+                        if (components) {
+                            setNodes(components);
+                            if (wireframeId) {
+                                setCurrentWireframeId(wireframeId);
+                            }
+                        }
+                    }}
+                />
             </div>
 
             {/* Left Toggle Bar */}

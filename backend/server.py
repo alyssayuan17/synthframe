@@ -163,32 +163,13 @@ def update_with_gemini(current_wireframe: dict, instruction: str) -> dict:
 
 
 
-from scraper.scrape import scrape_similar_sites
+# ============================================================================
+# CORE LOGIC (Shared by MCP & REST)
+# ============================================================================
 
-@app.tool()
-async def analyze_sketch(image_base64: str, prompt: str = "") -> dict:
-    """
-    Analyze a hand-drawn sketch and convert it to a digital wireframe.
-
-    Steps:
-    1. Run CV pipeline (already implemented in vision/)
-    2. Refine with Gemini AI
-    3. Return wireframe JSON
-
-    Args:
-        image_base64: Base64 encoded sketch image
-        prompt: Optional text description
-
-    Returns:
-        {
-            "wireframe_id": "wf_abc123",
-            "name": "Sketch Wireframe",
-            "components": [...],
-            "message": "Detected 5 components"
-        }
-    """
+async def analyze_sketch_logic(image_base64: str, prompt: str = "") -> dict:
     try:
-        # Step 1: Run CV pipeline (your existing code)
+        # Step 1: Run CV pipeline
         cv_result = cv_analyze_sketch(image_base64, return_debug_image=False)
 
         # Step 2: Convert to format for Gemini
@@ -206,7 +187,7 @@ async def analyze_sketch(image_base64: str, prompt: str = "") -> dict:
             for comp in cv_result.components
         ]
 
-        # Step 3: Refine with Gemini (placeholder - you implement this)
+        # Step 3: Refine with Gemini
         refined_wireframe = refine_with_gemini(detected_components, prompt)
 
         # Step 4: Save wireframe
@@ -229,36 +210,11 @@ async def analyze_sketch(image_base64: str, prompt: str = "") -> dict:
             "message": f"Failed to analyze sketch: {str(e)}"
         }
 
-
-@app.tool()
-async def generate_wireframe(
-    prompt: str,
-    use_scraper: bool = True
-) -> dict:
-    """
-    Generate a wireframe from a text description.
-
-    Steps:
-    1. Optionally scrape similar sites for inspiration
-    2. Call Gemini to generate components
-    3. Return wireframe JSON
-
-    Args:
-        prompt: User's description (e.g., "Create a landing page for my student club")
-        use_scraper: Whether to scrape similar sites (default: True)
-
-    Returns:
-        {
-            "wireframe_id": "wf_xyz789",
-            "name": "Generated Wireframe",
-            "components": [...],
-            "message": "Generated 8 components"
-        }
-    """
+async def generate_wireframe_logic(prompt: str, use_scraper: bool = True) -> dict:
     try:
         scraper_context = ""
 
-        # Step 1: Web scraper (placeholder - you implement this)
+        # Step 1: Web scraper
         if use_scraper:
             try:
                 scraper_result = scrape_similar_sites(prompt)
@@ -268,7 +224,7 @@ async def generate_wireframe(
             except Exception as e:
                 print(f"Scraper failed: {e}")
 
-        # Step 2: Generate with Gemini (placeholder - you implement this)
+        # Step 2: Generate with Gemini
         wireframe_json = generate_with_gemini(prompt, scraper_context)
 
         # Step 3: Save wireframe
@@ -288,34 +244,26 @@ async def generate_wireframe(
     except Exception as e:
         return {
             "error": str(e),
+            "extract_error": str(e), # For REST API compatibility check
             "message": f"Failed to generate wireframe: {str(e)}"
         }
 
 
+from scraper.scrape import scrape_similar_sites
+
 @app.tool()
-async def update_component(
-    wireframe_id: str,
-    instruction: str
-) -> dict:
-    """
-    Update an existing wireframe based on natural language instruction.
+async def analyze_sketch(image_base64: str, prompt: str = "") -> dict:
+    """Analyze a hand-drawn sketch and convert it to a digital wireframe."""
+    return await analyze_sketch_logic(image_base64, prompt)
 
-    Examples:
-    - "Make the hero section bigger"
-    - "Add a pricing section"
-    - "Move the footer down"
 
-    Args:
-        wireframe_id: ID of wireframe to update
-        instruction: What to change
+@app.tool()
+async def generate_wireframe(prompt: str, use_scraper: bool = True) -> dict:
+    """Generate a wireframe from a text description."""
+    return await generate_wireframe_logic(prompt, use_scraper)
 
-    Returns:
-        {
-            "wireframe_id": "wf_abc123",
-            "components": [...],
-            "message": "Updated hero section"
-        }
-    """
+
+async def update_component_logic(wireframe_id: str, instruction: str) -> dict:
     try:
         # Step 1: Get existing wireframe
         if wireframe_id not in wireframes_db:
@@ -326,7 +274,7 @@ async def update_component(
 
         current_wireframe = wireframes_db[wireframe_id]
 
-        # Step 2: Update with Gemini (placeholder - you implement this)
+        # Step 2: Update with Gemini
         updated_wireframe = update_with_gemini(current_wireframe, instruction)
 
         # Step 3: Save updated wireframe
@@ -347,6 +295,14 @@ async def update_component(
             "message": f"Failed to update: {str(e)}"
         }
 
+@app.tool()
+async def update_component(
+    wireframe_id: str,
+    instruction: str
+) -> dict:
+    """Update an existing wireframe based on natural language instruction."""
+    return await update_component_logic(wireframe_id, instruction)
+
 
 # ============================================================================
 # REST API (for frontend to fetch wireframes)
@@ -354,6 +310,7 @@ async def update_component(
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 rest_api = FastAPI(title="SynthFrame API")
 
@@ -364,6 +321,54 @@ rest_api.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+class GenerateRequest(BaseModel):
+    prompt: str
+    use_scraper: bool = True
+
+class AnalyzeRequest(BaseModel):
+    image_base64: str
+    prompt: Optional[str] = ""
+
+class UpdateRequest(BaseModel):
+    wireframe_id: str
+    instruction: str
+
+@rest_api.post("/api/generate")
+async def api_generate_wireframe(request: GenerateRequest):
+    """Generate wireframe from text (REST endpoint)"""
+    try:
+        # Call logic directly
+        result = await generate_wireframe_logic(request.prompt, request.use_scraper)
+        if "error" in result:
+             raise HTTPException(status_code=500, detail=result["extract_error"])
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@rest_api.post("/api/analyze")
+async def api_analyze_sketch(request: AnalyzeRequest):
+    """Analyze sketch (REST endpoint)"""
+    try:
+        # Call logic directly
+        result = await analyze_sketch_logic(request.image_base64, request.prompt)
+        if "error" in result:
+             raise HTTPException(status_code=500, detail=result["error"])
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@rest_api.post("/api/update")
+async def api_update_component(request: UpdateRequest):
+    """Update wireframe (REST endpoint)"""
+    try:
+        result = await update_component_logic(request.wireframe_id, request.instruction)
+        if "error" in result:
+             raise HTTPException(status_code=500, detail=result["message"])
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @rest_api.get("/api/wireframes/{wireframe_id}")
