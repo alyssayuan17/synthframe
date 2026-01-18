@@ -1,0 +1,127 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* 1. CSS VARIABLES (Theming) */
+:root {
+  /* Brand Colors - Easy to swap if you change from RBC Blue to Scotiabank Red */
+  --primary: #002e8d;
+  --primary-hover: #001f5c;
+  --secondary: #6c757d;
+
+  /* Neutral Colors */
+  --background: #0a0a1a;
+  --text-main: #ffffff;
+  --text-muted: #666666;
+  --border: #e2e8f0;
+
+  /* Status Colors */
+  --success: #22c55e;
+  --error: #ef4444;
+  --warning: #f59e0b;
+
+  /* Spacing & Border Radius */
+  --radius: 8px;
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Sketchpad Theme Variables */
+  --color-slate-900: #0f172a;
+  --color-slate-800: #1e293b;
+  --color-slate-700: #334155;
+  --color-slate-600: #475569;
+  --color-slate-500: #64748b;
+  --color-slate-300: #cbd5e1;
+  --color-slate-200: #e2e8f0;
+  --color-slate-100: #f1f5f9;
+  --color-white: #ffffff;
+  --color-electric-blue: #3b82f6;
+  --color-electric-blue-hover: #2563eb;
+  --color-electric-blue-light: #60a5fa;
+
+  --border-radius: 8px;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* 2. MODERN RESET */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--background);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* Prevent horizontal scroll */
+}
+
+/* Custom Scrollbar - Hidden by default, appears on scroll */
+::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+/* Only show when scrolling (class added via JS) */
+body.is-scrolling ::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.4);
+}
+
+body.is-scrolling ::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.7);
+}
+
+/* 4. TYPOGRAPHY FOUNDATION */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--primary-hover);
+}
+
+/* 5. UTILITY CLASSES (Optional but helpful) */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
