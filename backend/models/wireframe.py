@@ -8,20 +8,36 @@ These Pydantic models define the structure of UI components that flow through th
 
 Your teammate's React frontend will receive these JSON structures and render them.
 
-COMPONENT TYPES (what we can detect/generate):
+COMPONENT TYPES (17 types - what we can detect/generate):
+
+Navigation:
 - NAVBAR: Navigation bar at top
+- SIDEBAR: Vertical navigation (desktop)
+- FOOTER: Bottom section
+- BOTTOM_NAV: Mobile bottom navigation
+
+Content Sections:
 - HERO: Large banner section with headline
 - SECTION: Generic content section
 - CARD: Content card (often in grids)
+
+Interactive Elements:
 - FORM: Input form with fields
 - BUTTON: Clickable button
+- INPUT: Single input field
+
+Text Elements:
 - TEXT: Text block/paragraph
+- HEADING: Title/heading text
+
+Media & Data:
 - IMAGE: Image placeholder
-- SIDEBAR: Vertical navigation
-- FOOTER: Bottom section
 - TABLE: Data table
 - CALENDAR: Calendar widget
 - CHART: Chart/graph placeholder
+
+Frames:
+- FRAME: Device container (macbook, iphone)
 """
 
 from typing import Optional, Literal
@@ -34,28 +50,42 @@ class ComponentType(str, Enum):
     """
     All possible component types we can detect from sketches or generate via LLM.
 
-    
+    Total: 17 component types
+
     When adding new types:
     1. Add here
     2. Update CV shape mapping in vision/detect.py
     3. Update LLM prompts in llm/prompts.py
     4. Tell your teammate to add React component
     """
+    # Navigation
     NAVBAR = "NAVBAR"
+    SIDEBAR = "SIDEBAR"
+    FOOTER = "FOOTER"
+    BOTTOM_NAV = "BOTTOM_NAV"  # Mobile bottom navigation
+
+    # Content sections
     HERO = "HERO"
     SECTION = "SECTION"
     CARD = "CARD"
+
+    # Interactive elements
     FORM = "FORM"
     BUTTON = "BUTTON"
+    INPUT = "INPUT"
+
+    # Text elements
     TEXT = "TEXT"
+    HEADING = "HEADING"
+
+    # Media & Data
     IMAGE = "IMAGE"
-    SIDEBAR = "SIDEBAR"
-    FOOTER = "FOOTER"
     TABLE = "TABLE"
     CALENDAR = "CALENDAR"
     CHART = "CHART"
-    INPUT = "INPUT"
-    HEADING = "HEADING"
+
+    # Frames (device containers)
+    FRAME = "FRAME"
 
 
 class Position(BaseModel):
@@ -293,21 +323,34 @@ class CVDetectionResult(BaseModel):
     )
 
 
-# Component templates for default props
+# Component templates for default props (17 types)
 COMPONENT_TEMPLATES: dict = {
+    # Navigation
     "NAVBAR": {"logo": "Logo", "links": ["Home", "About", "Contact"], "cta": "Sign Up"},
-    "HERO": {"headline": "Your Headline Here", "subheadline": "Supporting text", "cta": "Get Started"},
     "SIDEBAR": {"items": ["Dashboard", "Settings", "Profile"]},
-    "CARD": {"title": "Card Title", "content": "Card content goes here"},
-    "BUTTON": {"label": "Button", "variant": "primary"},
-    "FORM": {"fields": [{"label": "Email", "type": "email"}], "submit": "Submit"},
-    "TABLE": {"columns": ["Name", "Email", "Status"], "rows": 5},
-    "CHART": {"type": "bar", "title": "Chart Title"},
     "FOOTER": {"links": ["Privacy", "Terms", "Contact"], "copyright": "© 2024"},
-    "HEADING": {"text": "Heading", "level": 1},
-    "SECTION": {"title": "Section Title"},
-    "IMAGE": {"alt": "Image placeholder", "src": ""},
-    "CALENDAR": {"view": "month"},
+    "BOTTOM_NAV": {"items": ["Home", "Search", "Profile", "Settings"]},
+
+    # Content sections
+    "HERO": {"headline": "Your Headline Here", "subheadline": "Supporting text", "cta": "Get Started"},
+    "SECTION": {"title": "Section Title", "content": "Section content goes here"},
+    "CARD": {"title": "Card Title", "content": "Card content goes here"},
+
+    # Interactive elements
+    "FORM": {"fields": [{"label": "Email", "type": "email"}], "submit": "Submit"},
+    "BUTTON": {"label": "Button", "variant": "primary"},
     "INPUT": {"placeholder": "Enter text...", "type": "text"},
+
+    # Text elements
     "TEXT": {"content": "Text content here"},
+    "HEADING": {"text": "Heading", "level": 1},
+
+    # Media & Data
+    "IMAGE": {"alt": "Image placeholder", "src": ""},
+    "TABLE": {"columns": ["Name", "Email", "Status"], "rows": 5},
+    "CALENDAR": {"view": "month"},
+    "CHART": {"type": "bar", "title": "Chart Title"},
+
+    # Frames
+    "FRAME": {"device": "macbook", "width": 1440, "height": 900},
 }

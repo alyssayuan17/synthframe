@@ -75,22 +75,26 @@ You must output a JSON object with this EXACT structure:
 # AVAILABLE COMPONENT TYPES (MUST BE UPPERCASE)
 Every component "type" field MUST be one of these EXACT strings:
 
-- NAVBAR: {{"logo": string, "links": string[], "cta": string}}
-- SIDEBAR: {{"items": string[]}}
-- FOOTER: {{"copyright": string, "links": string[]}}
-- HEADING: {{"text": string, "level": 1-6}}
-- TEXT: {{"text": string}}
-- CARD: {{"title": string, "content": string}}
-- BUTTON: {{"label": string, "variant": "primary"|"secondary"}}
-- FORM: {{"fields": [{{"label", "type", "placeholder"}}]}}
-- INPUT: {{"placeholder": string, "type": string}}
-- TABLE: {{"columns": string[], "rows": number}}
-- CHART: {{"type": "bar"|"line"|"pie", "title": string}}
-- IMAGE: {{"alt": string, "src": string}}
-- HERO: {{"headline": string, "subheadline": string, "cta": string}}
-- SECTION: {{"title": string, "content": string}}
-- CALENDAR: {{"view": "month"|"week"}}
-- BOTTOM_NAV: {{"items": string[]}}  # Use for mobile designs
+- NAVIGATION-BAR: {{"logo": string, "items": string[], "cta": string}}
+- HERO-BANNER: {{"headline": string, "subheadline": string, "cta": string}}
+- FEATURE-GRID: {{"features": [{{"title", "description", "icon"}}]}}
+- CONTENT-BLOCK: {{"title": string, "content": string, "imagePosition": "left"|"right"}}
+- GALLERY-GRID: {{"images": string[]}}
+- TESTIMONIAL-SLIDER: {{"testimonials": [{{"name", "role", "quote"}}]}}
+- PRICING-TABLE: {{"plans": [{{"name", "price", "features"}}]}}
+- CALL-TO-ACTION: {{"headline": string, "buttonText": string}}
+- FOOTER-SIMPLE: {{"copyright": string, "links": string[]}}
+- LOGIN-FORM: {{"fields": string[], "submitText": string}}
+- SIGNUP-FORM: {{"fields": string[], "submitText": string}}
+- CONTACT-FORM: {{"fields": string[], "submitText": string}}
+- STATS-DISPLAY: {{"stats": [{{"label", "value"}}]}}
+- TEAM-GRID: {{"members": [{{"name", "role", "image"}}]}}
+- FAQ-ACCORDION: {{"items": [{{"question", "answer"}}]}}
+- TIMELINE-VIEW: {{"events": [{{"date", "title", "description"}}]}}
+- SEARCH-BAR: {{"placeholder": string}}
+- SOCIAL-LINKS: {{"networks": string[]}}
+- SIDEBAR: {{"items": string[]}}  # Legacy support
+- CARD: {{"title": string, "content": string}} # Legacy support
 
 # DEVICE-SPECIFIC GUIDELINES
 - For IPHONE: Use single column layouts, avoid sidebars, use bottom navigation. Touch targets min 44px.
