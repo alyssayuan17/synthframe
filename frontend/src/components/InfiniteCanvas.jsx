@@ -55,20 +55,22 @@ const InfiniteCanvas = ({ nodes, onAddNode, onDeleteNode, onMoveNode, onResizeNo
 
 
 
-    // Fix passive event listener error for wheel event
+    const handleWheel = (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        setZoom((prevZoom) => Math.min(Math.max(prevZoom + delta, 0.5), 2));
+    };
+
+    // Add wheel event listener with passive: false to allow preventDefault()
     React.useEffect(() => {
-        const element = canvasRef.current;
-        if (!element) return;
-
-        const handleWheelEvent = (e) => {
-            e.preventDefault();
-            const delta = e.deltaY > 0 ? -0.1 : 0.1;
-            setZoom((prevZoom) => Math.min(Math.max(prevZoom + delta, 0.5), 2));
-        };
-
-        element.addEventListener('wheel', handleWheelEvent, { passive: false });
-        return () => element.removeEventListener('wheel', handleWheelEvent);
-    }, []);
+        const canvas = canvasRef.current;
+        if (canvas) {
+            canvas.addEventListener('wheel', handleWheel, { passive: false });
+            return () => {
+                canvas.removeEventListener('wheel', handleWheel);
+            };
+        }
+    }, [zoom]);
 
     const handleZoomIn = () => {
         setZoom((prevZoom) => Math.min(prevZoom + 0.1, 2));
@@ -121,17 +123,6 @@ const InfiniteCanvas = ({ nodes, onAddNode, onDeleteNode, onMoveNode, onResizeNo
             };
         }
     }, [isPanning, panStart, drawingConnection]);
-
-    // Add wheel event listener with passive: false to allow preventDefault()
-    React.useEffect(() => {
-        const canvas = canvasRef.current;
-        if (canvas) {
-            canvas.addEventListener('wheel', handleWheel, { passive: false });
-            return () => {
-                canvas.removeEventListener('wheel', handleWheel);
-            };
-        }
-    }, [zoom]);
 
     const handleConnectStart = (nodeId, clientPos) => {
         const localPos = getLocalCoordinates(clientPos.x, clientPos.y);

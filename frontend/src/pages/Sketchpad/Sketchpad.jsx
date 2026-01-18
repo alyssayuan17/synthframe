@@ -9,6 +9,9 @@ import './Sketchpad.css';
 const Sketchpad = () => {
     const [nodes, setNodes] = useState([]);
     const [leftCollapsed, setLeftCollapsed] = useState(false);
+    const [rightCollapsed, setRightCollapsed] = useState(false);
+    const [selectedNodeId, setSelectedNodeId] = useState(null);
+    const [currentWireframeId, setCurrentWireframeId] = useState(null);
 
     // Athena AI widget handles chat - loaded via script in index.html
     // Canvas updates will come from Athena via window events (see useEffect below)
@@ -34,8 +37,6 @@ const Sketchpad = () => {
         };
         return () => { delete window.synthframeUpdateCanvas; };
     }, []);
-    const [rightCollapsed, setRightCollapsed] = useState(false);
-    const [selectedNodeId, setSelectedNodeId] = useState(null);
 
     const getDefaultSize = (type) => {
         if (type === 'macbook-frame') {
@@ -139,8 +140,6 @@ const Sketchpad = () => {
         });
     };
 
-    const [currentWireframeId, setCurrentWireframeId] = useState(null);
-    const [rightCollapsed, setRightCollapsed] = useState(false);
     const lastSyncedRef = React.useRef(0);
 
     // ===================================
