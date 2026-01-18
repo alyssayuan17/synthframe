@@ -7,6 +7,7 @@ from backend.scraper.extract import build_web_context
 from backend.scraper.policies import ScrapePolicies
 
 
+
 def scrape_context(user_input: str, max_pages: Optional[int] = None) -> str:
     policies = ScrapePolicies(
         max_pages=max_pages or SCRAPER_MAX_PAGES,
