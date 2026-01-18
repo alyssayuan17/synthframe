@@ -189,6 +189,23 @@ const Sketchpad = () => {
 
     const lastSyncedRef = React.useRef(0);
 
+    // Helper to transform backend components to frontend node format
+    const transformBackendComponentToNode = (comp, index) => {
+        // Backend uses UPPERCASE-WITH-DASHES, frontend uses lowercase-with-dashes
+        const type = comp.type ? comp.type.toLowerCase() : 'card-basic';
+
+        return {
+            id: comp.id || `node_${Date.now()}_${index}`,
+            type: type,
+            position: comp.position || { x: 100, y: 100 + (index * 120) },
+            size: comp.size || { width: 200, height: 100 },
+            isFrame: checkIsFrame(type),
+            parentId: comp.parentId || null,
+            relativePosition: comp.relativePosition || null,
+            props: comp.props || {}
+        };
+    };
+
     // ===================================
     // CONNNECTION TO BACKEND (Athena AI)
     // ===================================
@@ -209,7 +226,10 @@ const Sketchpad = () => {
                         const detail = await detailRes.json();
 
                         if (detail && detail.components) {
-                            setNodes(detail.components);
+                            // Transform backend components to frontend nodes
+                            const transformedNodes = detail.components.map(transformBackendComponentToNode);
+                            console.log("Transformed nodes:", transformedNodes);
+                            setNodes(transformedNodes);
                             setCurrentWireframeId(latest.id);
                             lastSyncedRef.current = latest.last_modified || Date.now() / 1000;
                         }
