@@ -97,8 +97,12 @@ async def generate_wireframe(prompt: str, use_scraper: bool = True) -> dict:
     from backend.generation.generate import generate_wireframe as gen_wf
     from datetime import datetime
     
+    print(f"🔧 MCP TOOL CALLED: generate_wireframe with prompt: {prompt[:50]}...")
+    
     layout, used_context = gen_wf(user_input=prompt, use_scraper=use_scraper)
     components = [c.model_dump() for c in layout.components]
+    
+    print(f"🔧 Generated {len(components)} components")
     
     # Store in FILE (not global state) for cross-worker access
     wireframe_data = {
@@ -108,6 +112,7 @@ async def generate_wireframe(prompt: str, use_scraper: bool = True) -> dict:
         "updated_at": datetime.utcnow().isoformat()
     }
     save_latest_wireframe(wireframe_data)
+    print(f"🔧 Saved wireframe to {WIREFRAME_CACHE_FILE}")
     
     # Return ONLY a concise message - NO JSON!
     return {
@@ -307,6 +312,37 @@ async def get_wireframes():
             }]
         }
     return {"wireframes": []}
+
+
+@app.post("/api/wireframes/test")
+async def test_create_wireframe():
+    """Test endpoint to manually create a wireframe file"""
+    from datetime import datetime
+    test_data = {
+        "components": [
+            {
+                "id": "test-nav",
+                "type": "NAVBAR",
+                "position": {"x": 0, "y": 0},
+                "size": {"width": 1440, "height": 64},
+                "props": {"logo": "Test", "links": ["Home", "About"]},
+                "source": "test"
+            },
+            {
+                "id": "test-hero",
+                "type": "HERO",
+                "position": {"x": 0, "y": 64},
+                "size": {"width": 1440, "height": 300},
+                "props": {"headline": "Test Headline", "cta": "Click Me"},
+                "source": "test"
+            }
+        ],
+        "wireframe_id": "test_wireframe_123",
+        "canvas_size": {"width": 1440, "height": 900},
+        "updated_at": datetime.utcnow().isoformat()
+    }
+    save_latest_wireframe(test_data)
+    return {"message": "Test wireframe created", "file": str(WIREFRAME_CACHE_FILE)}
 
 
 @app.get("/api/wireframes/{wireframe_id}")
