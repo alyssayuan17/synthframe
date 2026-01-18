@@ -183,10 +183,6 @@ app.include_router(hybrid.router)
 # Project management (save, load, list)
 app.include_router(projects.router)
 
-# Mount MCP Server (SSE) at /mcp path to avoid shadowing other routes
-# Athena connects to http://localhost:8000/mcp for SSE transport
-app.mount("/mcp", mcp.sse_app())
-
 
 
 
@@ -318,6 +314,14 @@ async def get_wireframe_by_id(wireframe_id: str):
         }
     
     return {"error": "Wireframe not found", "id": wireframe_id}
+
+
+# =============================================================================
+# MCP SERVER MOUNT (MUST BE LAST!)
+# =============================================================================
+# This MUST be mounted AFTER all other routes to avoid shadowing them
+# Athena AI connects to /sse which is provided by this mount
+app.mount("/", mcp.sse_app())
 
 
 # =============================================================================
