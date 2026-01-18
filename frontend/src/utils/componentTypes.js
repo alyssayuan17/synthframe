@@ -18,22 +18,41 @@ export const FRONTEND_TO_BACKEND = {
     'simple-header': 'NAVBAR',
     // Hero
     'hero-banner': 'HERO',
+    'hero': 'HERO',
     'video-hero': 'HERO',
     'split-hero': 'HERO',
     'gradient-hero': 'HERO',
-    // Features
+    // Features / Sections
     'feature-grid': 'SECTION',
+    'section': 'SECTION',
+    'content-section': 'SECTION',
     'icon-features': 'SECTION',
     'card-features': 'CARD',
+    'card': 'CARD',
     'timeline': 'SECTION',
-    // Footers
+    // Interactive
+    'form': 'FORM',
+    'button': 'BUTTON',
+    'input': 'INPUT',
+    'text': 'TEXT',
+    'heading': 'HEADING',
+    // Media / Data
+    'image': 'IMAGE',
+    'table': 'TABLE',
+    'calendar': 'CALENDAR',
+    'chart': 'CHART',
+    // Navigation / Layout
+    'sidebar': 'SIDEBAR',
+    'footer': 'FOOTER',
     'simple-footer': 'FOOTER',
     'multi-column': 'FOOTER',
     'social-footer': 'FOOTER',
     'newsletter': 'FOOTER',
+    'bottom-nav': 'BOTTOM_NAV',
     // Frames
     'macbook-frame': 'FRAME',
     'iphone-frame': 'FRAME',
+    'frame': 'FRAME',
 };
 
 // Mapping from backend UPPERCASE to display category
