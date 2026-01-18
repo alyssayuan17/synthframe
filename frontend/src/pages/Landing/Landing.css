@@ -1,0 +1,343 @@
+/* Landing Page Layout */
+.landing {
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-white);
+}
+
+/* Navigation */
+.landing-nav {
+    height: 64px;
+    background-color: var(--color-slate-900);
+    border-bottom: 1px solid var(--color-slate-700);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+}
+
+.landing-brand {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-white);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.landing-brand span {
+    font-style: oblique 8deg;
+}
+
+.landing-brand .brand-logo {
+    height: 32px;
+    width: auto;
+}
+
+.nav-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.nav-link {
+    padding: 8px 16px;
+    color: var(--color-white);
+    text-decoration: none;
+    border: 1px solid var(--color-slate-700);
+    border-radius: var(--border-radius);
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-slate-300);
+}
+
+/* Main Content */
+.landing-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Hero Section */
+.hero {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 140px 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hero-title {
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--color-slate-900);
+    margin-bottom: 24px;
+    line-height: 1.1;
+}
+
+.hero-subtitle {
+    font-size: 20px;
+    color: var(--color-slate-600);
+    margin-bottom: 48px;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Buttons */
+.btn-primary {
+    padding: 12px 24px;
+    background-color: var(--color-electric-blue);
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-slate-300);
+    color: var(--color-slate-900);
+}
+
+.btn-secondary {
+    padding: 12px 24px;
+    background-color: transparent;
+    color: var(--color-slate-900);
+    border: 1px solid var(--color-slate-300);
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-slate-100);
+    border-color: var(--color-slate-600);
+}
+
+/* Features Section */
+.features {
+    background-color: var(--color-slate-100);
+    padding: 80px 0;
+    margin-right:0.75rem;
+    display: flex;
+    justify-content: center;
+}
+
+.features-grid {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 24px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+}
+
+@media (min-width: 1024px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.feature-card {
+    background-color: var(--color-white);
+    padding: 32px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-slate-200);
+    transition: all 0.2s ease;
+}
+
+.feature-card:hover {
+    border-color: var(--color-slate-300);
+    box-shadow: var(--shadow-md);
+}
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-slate-100);
+    border-radius: var(--border-radius);
+    color: var(--color-slate-900);
+    margin-bottom: 16px;
+}
+
+.feature-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-slate-900);
+    margin-bottom: 12px;
+}
+
+.feature-description {
+    font-size: 15px;
+    color: var(--color-slate-600);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* CTA Section */
+.cta {
+    max-width: 700px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 120px 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cta-title {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--color-slate-900);
+    margin-bottom: 16px;
+}
+
+.cta-description {
+    font-size: 18px;
+    color: var(--color-slate-600);
+    margin-bottom: 32px;
+    max-width: 500px;
+}
+
+/* Footer */
+.landing-footer {
+    background-color: var(--color-slate-900);
+    border-top: 1px solid var(--color-slate-700);
+    padding: 48px 24px;
+}
+
+.footer-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 32px;
+}
+
+.footer-content {
+    max-width: 400px;
+}
+
+.footer-brand {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-white);
+    margin-bottom: 8px;
+}
+
+.footer-text {
+    font-size: 14px;
+    color: var(--color-slate-300);
+    margin: 0;
+}
+
+.footer-links {
+    display: flex;
+    gap: 24px;
+    margin-right: 10px;
+}
+
+.footer-link {
+    color: var(--color-slate-300);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+    color: var(--color-white);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 40px;
+    }
+
+    .hero-subtitle {
+        font-size: 18px;
+    }
+
+    .hero-actions {
+        width: 100%;
+    }
+
+    .hero-actions .btn-primary,
+    .hero-actions .btn-secondary {
+        flex: 1;
+        min-width: 140px;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-container {
+        flex-direction: column;
+    }
+
+    .footer-links {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .cta-title {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        padding: 80px 16px;
+    }
+
+    .features {
+        padding: 80px 16px;
+    }
+
+    .cta {
+        padding: 80px 16px;
+    }
+
+    .hero-title {
+        font-size: 32px;
+    }
+}
