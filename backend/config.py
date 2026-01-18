@@ -35,6 +35,12 @@ class Settings(BaseSettings):
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
     
     # ===========================================
+    # DATABASE
+    # ===========================================
+    mongodb_url: str = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
+    mongodb_db_name: str = os.getenv("MONGODB_DB_NAME", "synthframe")
+    
+    # ===========================================
     # CV/IMAGE PROCESSING SETTINGS
     # ===========================================
     

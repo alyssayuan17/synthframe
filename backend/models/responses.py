@@ -9,6 +9,7 @@ from .wireframe import WireframeLayout, CVDetectionResult
 class WireframeResponse(BaseModel):
     """Standard response containing a wireframe"""
     success: bool = True
+    project_id: Optional[str] = Field(None, description="MongoDB project ID for persistence")
     wireframe: WireframeLayout
     message: Optional[str] = None
     processing_time_ms: float = 0
@@ -69,6 +70,7 @@ class HealthResponse(BaseModel):
 class GenerateResponse(BaseModel):
     """Response from text-to-wireframe generation"""
     success: bool = True
+    project_id: Optional[str] = Field(None, description="MongoDB project ID for persistence")
     wireframe_layout: WireframeLayout
     used_webscraper_context: Optional[str] = None
     message: Optional[str] = None
@@ -77,6 +79,7 @@ class GenerateResponse(BaseModel):
 class EditWireframeResponse(BaseModel):
     """Response from wireframe edit operation"""
     success: bool = True
+    project_id: Optional[str] = Field(None, description="MongoDB project ID for persistence")
     wireframe_layout: WireframeLayout
     used_webscraper_context: Optional[str] = None
     message: Optional[str] = None
