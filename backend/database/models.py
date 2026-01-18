@@ -42,7 +42,7 @@ class Project(BaseModel):
     wireframe: WireframeLayout = Field(..., description="The wireframe layout with all components")
     
     # Metadata
-    generation_method: Literal["text_prompt", "cv_sketch", "mockup", "edit"] = Field(
+    generation_method: Literal["text_prompt", "cv_sketch", "mockup", "edit", "manual", "hybrid"] = Field(
         default="text_prompt",
         description="How this wireframe was created"
     )
