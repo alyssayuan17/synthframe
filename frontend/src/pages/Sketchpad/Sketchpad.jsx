@@ -9,46 +9,7 @@ const Sketchpad = () => {
     const [nodes, setNodes] = useState([]);
     const [leftCollapsed, setLeftCollapsed] = useState(false);
     const [rightCollapsed, setRightCollapsed] = useState(false);
-    const [currentWireframeId, setCurrentWireframeId] = useState(null);
-
-    // ===================================
-    // CONNNECTION TO BACKEND (Athena AI)
-    // ===================================
-    React.useEffect(() => {
-        const fetchLatestWireframe = async () => {
-            try {
-                // 1. Get list of wireframes
-                const listRes = await fetch('http://localhost:8001/api/wireframes');
-                const listData = await listRes.json();
-
-                if (listData.wireframes && listData.wireframes.length > 0) {
-                    // 2. Get the most recent one (last in the list likely, or just pick the last modified)
-                    const latest = listData.wireframes[listData.wireframes.length - 1];
-
-                    // Only fetch details if it's new or we haven't loaded one yet
-                    // Note: In a real app, we'd check timestamps. Here we just re-fetch to catch updates (Flow 3)
-
-                    const detailRes = await fetch(`http://localhost:8001/api/wireframes/${latest.id}`);
-                    const detail = await detailRes.json();
-
-                    if (detail && detail.components) {
-                        // Update state if different (simple check)
-                        setNodes(detail.components);
-                        setCurrentWireframeId(latest.id);
-                    }
-                }
-            } catch (err) {
-                console.error("Error polling backend:", err);
-            }
-        };
-
-        // Fetch only once on mount to restore state
-        fetchLatestWireframe();
-
-        // Polling removed to prevent conflict with local drag-and-drop state.
-        // User edits (drag/resize) update local state.
-        // AI updates trigger setNodes via onWireframeUpdate callback.
-    }, []);
+    const [selectedNodeId, setSelectedNodeId] = useState(null);
 
     const getDefaultSize = (type) => {
         if (type === 'macbook-frame') {
@@ -115,6 +76,9 @@ const Sketchpad = () => {
 
     const handleDeleteNode = (id) => {
         setNodes((prev) => prev.filter((node) => node.id !== id));
+        if (selectedNodeId === id) {
+            setSelectedNodeId(null);
+        }
     };
 
 
@@ -173,12 +137,113 @@ const Sketchpad = () => {
         );
     };
 
+    const handleNodeDragStop = (id) => {
+        setNodes((prev) => {
+            const movedNode = prev.find((n) => n.id === id);
+            if (!movedNode) return prev;
+
+            // Case 1: Moved a Frame -> Capture components inside it
+            if (movedNode.isFrame) {
+                const frameRect = {
+                    x: movedNode.position.x,
+                    y: movedNode.position.y,
+                    width: movedNode.size?.width || 200,
+                    height: movedNode.size?.height || 100,
+                };
+
+                return prev.map(n => {
+                    if (n.id === id || n.isFrame) return n; // Skip self/frames
+
+                    const nodeRect = {
+                        x: n.position.x,
+                        y: n.position.y,
+                        width: n.size?.width || 200,
+                        height: n.size?.height || 100
+                    };
+
+                    if (isInsideFrame(nodeRect, frameRect)) {
+                        return {
+                            ...n,
+                            parentId: id,
+                            relativePosition: {
+                                x: n.position.x - frameRect.x,
+                                y: n.position.y - frameRect.y
+                            }
+                        };
+                    }
+                    // Note: We don't detach existing children here because dragging the frame moves them, 
+                    // so they stay inside. Only detach if the CHILD is moved out (Case 2).
+                    return n;
+                });
+            }
+
+            // Case 2: Moved a Component -> Check if dropped on a Frame
+            const nodeRect = {
+                x: movedNode.position.x,
+                y: movedNode.position.y,
+                width: movedNode.size?.width || 200,
+                height: movedNode.size?.height || 100,
+            };
+
+            const targetFrame = prev.find(
+                (n) => n.isFrame && n.id !== id && isInsideFrame(nodeRect, { ...n.position, ...n.size })
+            );
+
+            if (targetFrame) {
+                const relativePosition = {
+                    x: movedNode.position.x - targetFrame.position.x,
+                    y: movedNode.position.y - targetFrame.position.y,
+                };
+
+                return prev.map((n) =>
+                    n.id === id
+                        ? { ...n, parentId: targetFrame.id, relativePosition }
+                        : n
+                );
+            } else {
+                if (movedNode.parentId) {
+                    return prev.map((n) =>
+                        n.id === id ? { ...n, parentId: null, relativePosition: null } : n
+                    );
+                }
+            }
+            return prev;
+        });
+    };
+
     // Sort nodes so frames render first (below other components)
     const sortedNodes = [...nodes].sort((a, b) => {
         if (a.isFrame && !b.isFrame) return -1;
         if (!a.isFrame && b.isFrame) return 1;
         return 0;
     });
+
+    // Handle keyboard events for deleting selected node
+    React.useEffect(() => {
+        const handleKeyDown = (e) => {
+            if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId) {
+                // Prevent default backspace navigation
+                e.preventDefault();
+                handleDeleteNode(selectedNodeId);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [selectedNodeId]);
+
+    const [connections, setConnections] = useState([]);
+
+    const handleAddConnection = (sourceId, targetId) => {
+        if (connections.some(c => c.sourceId === sourceId && c.targetId === targetId)) return;
+        setConnections(prev => [...prev, {
+            id: Date.now(),
+            sourceId,
+            targetId
+        }]);
+    };
 
     const getContentClassName = () => {
         if (leftCollapsed && rightCollapsed) return 'sketchpad-content both-collapsed';
@@ -198,18 +263,13 @@ const Sketchpad = () => {
                     onDeleteNode={handleDeleteNode}
                     onMoveNode={handleMoveNode}
                     onResizeNode={handleResizeNode}
+                    connections={connections}
+                    onAddConnection={handleAddConnection}
+                    onNodeDragStop={handleNodeDragStop}
+                    selectedNodeId={selectedNodeId}
+                    onSelectNode={setSelectedNodeId}
                 />
-                <RightSidebar
-                    currentWireframeId={currentWireframeId}
-                    onWireframeUpdate={(components, wireframeId) => {
-                        if (components) {
-                            setNodes(components);
-                            if (wireframeId) {
-                                setCurrentWireframeId(wireframeId);
-                            }
-                        }
-                    }}
-                />
+                <RightSidebar />
             </div>
 
             {/* Left Toggle Bar */}
