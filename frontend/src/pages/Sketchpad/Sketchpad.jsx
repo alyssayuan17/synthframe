@@ -15,6 +15,50 @@ const Sketchpad = () => {
     const [currentWireframeId, setCurrentWireframeId] = useState(null);
     const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
+    // Undo/Redo history
+    const [history, setHistory] = useState([]);
+    const [future, setFuture] = useState([]);
+    const isUndoRedoRef = React.useRef(false);
+
+    // Save current state to history before making changes
+    const saveToHistory = (currentNodes) => {
+        if (!isUndoRedoRef.current) {
+            setHistory(prev => [...prev.slice(-49), currentNodes]); // Keep last 50 states
+            setFuture([]); // Clear redo stack on new action
+        }
+    };
+
+    // Wrapped setNodes that tracks history
+    const setNodesWithHistory = (updater) => {
+        setNodes(prev => {
+            const newNodes = typeof updater === 'function' ? updater(prev) : updater;
+            if (JSON.stringify(prev) !== JSON.stringify(newNodes)) {
+                saveToHistory(prev);
+            }
+            return newNodes;
+        });
+    };
+
+    const handleUndo = () => {
+        if (history.length === 0) return;
+        isUndoRedoRef.current = true;
+        const previousState = history[history.length - 1];
+        setHistory(prev => prev.slice(0, -1));
+        setFuture(prev => [nodes, ...prev]);
+        setNodes(previousState);
+        setTimeout(() => { isUndoRedoRef.current = false; }, 0);
+    };
+
+    const handleRedo = () => {
+        if (future.length === 0) return;
+        isUndoRedoRef.current = true;
+        const nextState = future[0];
+        setFuture(prev => prev.slice(1));
+        setHistory(prev => [...prev, nodes]);
+        setNodes(nextState);
+        setTimeout(() => { isUndoRedoRef.current = false; }, 0);
+    };
+
     // Athena AI widget handles chat - loaded via script in index.html
     // Canvas updates will come from Athena via window events (see useEffect below)
 
@@ -140,11 +184,11 @@ const Sketchpad = () => {
             }
         }
 
-        setNodes((prev) => [...prev, newNode]);
+        setNodesWithHistory((prev) => [...prev, newNode]);
     };
 
     const handleDeleteNode = (id) => {
-        setNodes((prev) => prev.filter((node) => node.id !== id));
+        setNodesWithHistory((prev) => prev.filter((node) => node.id !== id));
         if (selectedNodeId === id) {
             setSelectedNodeId(null);
         }
@@ -312,7 +356,7 @@ const Sketchpad = () => {
     };
 
     const handleNodeDragStop = (id) => {
-        setNodes((prev) => {
+        setNodesWithHistory((prev) => {
             const movedNode = prev.find((n) => n.id === id);
             if (!movedNode) return prev;
 
@@ -396,11 +440,23 @@ const Sketchpad = () => {
         return aId - bId;
     });
 
-    // Handle keyboard events for deleting selected node
+    // Handle keyboard events for deleting selected node and undo/redo
     React.useEffect(() => {
         const handleKeyDown = (e) => {
+            // Undo: Cmd/Ctrl + Z
+            if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                handleUndo();
+                return;
+            }
+            // Redo: Cmd/Ctrl + Shift + Z or Cmd/Ctrl + Y
+            if ((e.metaKey || e.ctrlKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+                e.preventDefault();
+                handleRedo();
+                return;
+            }
+            // Delete selected node
             if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId) {
-                // Prevent default backspace navigation
                 e.preventDefault();
                 handleDeleteNode(selectedNodeId);
             }
@@ -410,7 +466,7 @@ const Sketchpad = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [selectedNodeId]);
+    }, [selectedNodeId, history, future, nodes]);
 
     const [connections, setConnections] = useState([]);
 
@@ -433,7 +489,7 @@ const Sketchpad = () => {
     const handleClearWireframe = () => {
         // Track which wireframe we're clearing so polling skips it
         clearedWireframeRef.current = currentWireframeId;
-        setNodes([]);
+        setNodesWithHistory([]);
         setCurrentWireframeId(null);
     };
 
@@ -458,7 +514,13 @@ const Sketchpad = () => {
 
     return (
         <div className="sketchpad">
-            <TopNavigation onSave={() => setSaveDialogOpen(true)} />
+            <TopNavigation
+                onSave={() => setSaveDialogOpen(true)}
+                onUndo={handleUndo}
+                onRedo={handleRedo}
+                canUndo={history.length > 0}
+                canRedo={future.length > 0}
+            />
             <SaveDialog
                 isOpen={saveDialogOpen}
                 onClose={() => setSaveDialogOpen(false)}
@@ -482,6 +544,7 @@ const Sketchpad = () => {
                     currentWireframeId={currentWireframeId}
                     onClearWireframe={handleClearWireframe}
                     onUploadSketch={handleUploadSketch}
+                    hasNodes={nodes.length > 0}
                 />
             </div>
 
