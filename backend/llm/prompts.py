@@ -425,3 +425,102 @@ Now refine the detected shapes above into proper UI components.
 
 
 CV_REFINEMENT_PROMPT = get_cv_refinement_prompt()  # Default for backwards compatibility
+
+
+# Prompt for refining CV components with text guidance (hybrid mode)
+def get_hybrid_refinement_prompt(device_type: str = None) -> str:
+    """Generate hybrid refinement prompt combining CV and text inputs."""
+    canvas = get_canvas_for_device(device_type)
+    device = device_type or DEFAULT_DEVICE_TYPE
+    
+    return f"""# YOUR ROLE
+You are a professional UI wireframe refinement system combining sketch analysis with text descriptions.
+
+# YOUR TASK
+You will receive:
+1. **CV-Detected Components**: Shapes detected from a hand-drawn sketch with positions and sizes
+2. **User Text Description**: Natural language describing what the UI should be
+
+You must:
+1. Use the CV components as the **spatial foundation** (positions and sizes are already good)
+2. Use the text description to **refine semantics**:
+   - Reclassify component types based on text meaning
+   - Add appropriate props mentioned in the text
+   - Identify components mentioned in text but missing from sketch
+3. Preserve accurate positions/sizes from CV components
+4. Output a refined wireframe combining both sources
+
+# TARGET DEVICE CONTEXT
+Device: {device.upper()}
+Canvas Size: {canvas['width']} × {canvas['height']} pixels
+
+# USER TEXT DESCRIPTION
+{{user_text}}
+
+# CV-DETECTED COMPONENTS
+{{detected_components}}
+
+# REFINEMENT STRATEGY
+
+**Use CV for**: Exact positions (x, y) and sizes (width, height)
+**Use Text for**: Component types, props, semantic understanding
+
+**Example Refinement Process:**
+1. CV detects: Tall narrow box on left → type="SECTION"
+2. Text says: "sidebar for navigation"
+3. You refine: Keep position/size, change type="SIDEBAR", add props={{{{"items": ["Nav1", "Nav2"]}}}}
+
+**Adding Missing Components:**
+- If text mentions components not in CV (e.g., "footer"), add them with reasonable positions
+- Place new components in typical locations for the device
+
+# AVAILABLE COMPONENT TYPES (UPPERCASE)
+- NAVBAR, SIDEBAR, HERO, CARD, BUTTON, FORM, INPUT, TABLE, FOOTER
+- HEADING, TEXT, IMAGE, CHART, SECTION, CALENDAR, BOTTOM_NAV
+
+# REQUIRED OUTPUT FORMAT
+{{{{
+  "name": "Descriptive wireframe name",
+  "components": [
+    {{{{
+      "id": "comp_xxx",
+      "type": "COMPONENT_TYPE",
+      "position": {{{{"x": <from CV>, "y": <from CV>}}}},
+      "size": {{{{"width": <from CV>, "height": <from CV>}}}},
+      "props": {{{{"title": "...", ...}}}},
+      "source": "hybrid",
+      "confidence": 0.0-1.0
+    }}}}
+  ]
+}}}}
+
+# CRITICAL RULES
+1. Output ONLY valid JSON (no markdown, no extra text)
+2. Preserve CV component positions and sizes unless text explicitly contradicts them
+3. All "type" values MUST be UPPERCASE
+4. Use "source": "hybrid" for all components
+5. If text mentions something not in CV, add it with a reasonable position
+6. Ensure all components fit within canvas: {canvas['width']} × {canvas['height']}
+
+# EXAMPLE
+
+**CV Input:** Rectangle at top (y=0, width=1440, height=60)
+**Text Input:** "Dashboard with navbar showing logo and login button"
+**Your Output:**
+{{{{
+  "name": "Dashboard Wireframe",
+  "components": [
+    {{{{
+      "id": "comp_0",
+      "type": "NAVBAR",
+      "position": {{{{"x": 0, "y": 0}}}},
+      "size": {{{{"width": 1440, "height": 60}}}},
+      "props": {{{{"logo": "Dashboard", "links": [], "cta": "Login"}}}},
+      "source": "hybrid",
+      "confidence": 0.95
+    }}}}
+  ]
+}}}}
+
+Now refine the CV components using the text description above.
+"""
