@@ -4,7 +4,7 @@ import React from 'react';
 // NAVIGATION COMPONENTS
 // ============================================
 
-const NavbarComponent = () => (
+const NavbarComponent = ({ logo, links }) => (
     <div className="navbar shadow-xl rounded-lg" style={{
         width: '100%',
         height: '100%',
@@ -14,14 +14,14 @@ const NavbarComponent = () => (
     }}>
         <div className="flex-1">
             <a className="btn btn-ghost normal-case text-xl font-bold hover:bg-black/10" style={{ color: '#000000' }}>
-                Brand
+                {logo || 'Brand'}
             </a>
         </div>
         <div className="flex-none">
             <ul className="menu menu-horizontal px-1 gap-1">
-                <li><a className="hover:bg-black/10 rounded-lg" style={{ color: '#000000' }}>Home</a></li>
-                <li><a className="hover:bg-black/10 rounded-lg" style={{ color: '#000000' }}>About</a></li>
-                <li><a className="hover:bg-black/10 rounded-lg" style={{ color: '#000000' }}>Contact</a></li>
+                {(links && Array.isArray(links) ? links : ['Home', 'About', 'Contact']).map((link, i) => (
+                    <li key={i}><a className="hover:bg-black/10 rounded-lg" style={{ color: '#000000' }}>{link}</a></li>
+                ))}
             </ul>
         </div>
     </div>
@@ -110,11 +110,11 @@ const ButtonOutline = () => (
 // CARD COMPONENTS
 // ============================================
 
-const CardBasic = () => (
+const CardBasic = ({ title, content }) => (
     <div className="card bg-slate-300 shadow-xl text-black" style={{ width: '100%', height: '100%' }}>
         <div className="card-body p-8">
-            <h2 className="card-title">Card Title</h2>
-            <p>A card component with a shadow and padding.</p>
+            <h2 className="card-title">{title || 'Card Title'}</h2>
+            <p>{content || 'A card component with a shadow and padding.'}</p>
             <div className="card-actions justify-end">
                 <button className="btn btn-primary">Action</button>
             </div>
@@ -287,23 +287,18 @@ const RadialProgress = () => (
     </div>
 );
 
-const StatsComponent = () => (
+const StatsComponent = ({ stats }) => (
     <div className="stats shadow w-full h-full">
-        <div className="stat place-items-center">
-            <div className="stat-title">Downloads</div>
-            <div className="stat-value text-primary">31K</div>
-            <div className="stat-desc text-primary">Jan 1st - Feb 1st</div>
-        </div>
-        <div className="stat place-items-center">
-            <div className="stat-title">New Users</div>
-            <div className="stat-value text-primary">4,200</div>
-            <div className="stat-desc text-primary">↗︎ 40 (2%)</div>
-        </div>
-        <div className="stat place-items-center">
-            <div className="stat-title">New Registers</div>
-            <div className="stat-value text-primary">1,200</div>
-            <div className="stat-desc text-primary">↘︎ 90 (14%)</div>
-        </div>
+        {(stats && Array.isArray(stats) ? stats : [
+            { label: 'Downloads', value: '31K', desc: 'Jan 1st - Feb 1st' },
+            { label: 'New Users', value: '4,200', desc: '↗︎ 40 (2%)' }
+        ]).map((stat, i) => (
+            <div key={i} className="stat place-items-center">
+                <div className="stat-title">{stat.label}</div>
+                <div className="stat-value text-primary">{stat.value}</div>
+                <div className="stat-desc text-primary">{stat.desc}</div>
+            </div>
+        ))}
     </div>
 );
 
@@ -335,38 +330,23 @@ const CalendarComponent = () => (
     </div>
 );
 
-const PricingComponent = () => (
+const PricingComponent = ({ plans }) => (
     <div className="w-full h-full flex flex-row gap-6 justify-center items-center bg-base-200 p-6 rounded-lg overflow-x-auto">
-        <div className="card bg-base-100 w-60 flex-shrink-0 shadow-lg h-full">
-            <div className="card-body items-center text-center p-6">
-                <h2 className="card-title">Basic</h2>
-                <div className="text-4xl font-bold py-4">$0</div>
-                <div className="text-sm opacity-70">Free forever</div>
-                <div className="card-actions mt-auto w-full">
-                    <button className="btn btn-outline btn-primary w-full">Sign up</button>
+        {(plans && Array.isArray(plans) ? plans : [
+            { name: 'Basic', price: '$0', desc: 'Free forever' },
+            { name: 'Pro', price: '$29', desc: 'Best for small teams' }
+        ]).map((plan, i) => (
+            <div key={i} className="card bg-base-100 w-60 flex-shrink-0 shadow-lg h-full">
+                <div className="card-body items-center text-center p-6">
+                    <h2 className="card-title">{plan.name}</h2>
+                    <div className="text-4xl font-bold py-4">{plan.price}</div>
+                    <div className="text-sm opacity-70">{plan.desc || plan.features?.join(', ')}</div>
+                    <div className="card-actions mt-auto w-full">
+                        <button className="btn btn-outline btn-primary w-full">Get Started</button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div className="card bg-base-100 w-60 flex-shrink-0 shadow-xl border-2 border-primary h-full">
-            <div className="card-body items-center text-center p-6">
-                <h2 className="card-title text-primary">Pro</h2>
-                <div className="text-4xl font-bold py-4">$29</div>
-                <div className="text-sm opacity-70">Best for small teams</div>
-                <div className="card-actions mt-auto w-full">
-                    <button className="btn btn-primary w-full">Get Started</button>
-                </div>
-            </div>
-        </div>
-        <div className="card bg-base-100 w-60 flex-shrink-0 shadow-lg h-full">
-            <div className="card-body items-center text-center p-6">
-                <h2 className="card-title">Enterprise</h2>
-                <div className="text-4xl font-bold py-4">$99</div>
-                <div className="text-sm opacity-70">For scaling businesses</div>
-                <div className="card-actions mt-auto w-full">
-                    <button className="btn btn-outline btn-primary w-full">Contact</button>
-                </div>
-            </div>
-        </div>
+        ))}
     </div>
 );
 
@@ -374,26 +354,26 @@ const PricingComponent = () => (
 // HERO SECTIONS
 // ============================================
 
-const HeroBasic = () => (
+const HeroBasic = ({ headline, subheadline, cta }) => (
     <div className="hero bg-base-200 p-4" style={{ width: '100%', height: '100%' }}>
         <div className="hero-content text-center">
             <div className="max-w-md">
-                <h1 className="text-5xl font-bold">Hello there</h1>
-                <p className="py-6">Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi exercitationem quasi.</p>
-                <button className="btn btn-primary">Get Started</button>
+                <h1 className="text-5xl font-bold">{headline || 'Hello there'}</h1>
+                <p className="py-6">{subheadline || 'Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi exercitationem quasi.'}</p>
+                <button className="btn btn-primary">{cta || 'Get Started'}</button>
             </div>
         </div>
     </div>
 );
 
-const HeroWithImage = () => (
+const HeroWithImage = ({ headline, content, cta }) => (
     <div className="hero bg-base-200 p-4" style={{ width: '100%', height: '100%' }}>
         <div className="hero-content flex-row gap-8">
             <div className="w-64 h-64 bg-base-300 flex items-center justify-center rounded-lg shadow-2xl flex-shrink-0">Image</div>
             <div>
-                <h1 className="text-4xl font-bold">Box Office News!</h1>
-                <p className="py-4">Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi.</p>
-                <button className="btn btn-primary">Get Started</button>
+                <h1 className="text-4xl font-bold">{headline || 'Box Office News!'}</h1>
+                <p className="py-4">{content || 'Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi.'}</p>
+                <button className="btn btn-primary">{cta || 'Get Started'}</button>
             </div>
         </div>
     </div>
@@ -558,33 +538,40 @@ export const COMPONENT_REGISTRY = {
     'footer-centered': FooterCentered,
 
     // Standard Generalized Types (UPPERCASE - Backend sync)
-    'NAVBAR': NavbarComponent,
-    'SIDEBAR': DrawerComponent, // Using drawer for now
-    'FOOTER': FooterBasic,
-    'BOTTOM_NAV': TabsComponent, // Using tabs as proxy for now
-    'HERO': HeroBasic,
+    'NAVIGATION-BAR': NavbarComponent,
+    'HERO-BANNER': HeroBasic,
     'SECTION': CardBasic,
     'CARD': CardBasic,
+    'CONTENT-BLOCK': HeroWithImage,
+    'FEATURE-GRID': PricingComponent, // Can use pricing as grid for now
+    'PRICING-TABLE': PricingComponent,
+    'FOOTER-SIMPLE': FooterBasic,
+    'SIDEBAR': DrawerComponent,
+    'BOTTOM_NAV': TabsComponent,
     'FORM': InputWithLabel,
     'BUTTON': ButtonPrimary,
     'INPUT': InputText,
     'TEXT': TextareaComponent,
-    'HEADING': HeroBasic, // Using hero as proxy for heading for now
+    'HEADING': HeroBasic,
     'IMAGE': CardWithImage,
-    'TABLE': StatsComponent, // Using stats as proxy for now
+    'TABLE': StatsComponent,
     'CALENDAR': CalendarComponent,
     'CHART': RadialProgress,
-    'FRAME': HeroBasic, // Should rarely be used directly as a component
+    'FRAME': HeroBasic,
 
-    // Legacy/Semantic mappings
-    'navigation-bar': NavbarComponent,
-    'sticky-header': NavbarComponent,
-    'mega-menu': NavbarWithDropdown,
-    'hero-banner': HeroBasic,
-    'feature-grid': CardBasic,
-    'simple-footer': FooterBasic,
+    // Backend compatible types
+    'NAVBAR': NavbarComponent,
+    'HERO': HeroBasic,
+    'FOOTER': FooterBasic,
 };
 
 export const getComponentByType = (type) => {
-    return COMPONENT_REGISTRY[type] || null;
+    if (!type) return null;
+    const normalizedType = type.toLowerCase();
+
+    return COMPONENT_REGISTRY[type] ||
+        COMPONENT_REGISTRY[normalizedType] ||
+        COMPONENT_REGISTRY[type.toUpperCase()] ||
+        COMPONENT_REGISTRY[type.replace(/-/g, '_').toUpperCase()] ||
+        null;
 };

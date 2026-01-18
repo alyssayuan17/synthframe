@@ -60,14 +60,20 @@ class ComponentType(str, Enum):
     """
     # Navigation
     NAVBAR = "NAVBAR"
+    NAVIGATION_BAR = "NAVIGATION-BAR"
     SIDEBAR = "SIDEBAR"
     FOOTER = "FOOTER"
-    BOTTOM_NAV = "BOTTOM_NAV"  # Mobile bottom navigation
+    FOOTER_SIMPLE = "FOOTER-SIMPLE"
+    BOTTOM_NAV = "BOTTOM_NAV"
 
     # Content sections
     HERO = "HERO"
+    HERO_BANNER = "HERO-BANNER"
     SECTION = "SECTION"
+    CONTENT_BLOCK = "CONTENT-BLOCK"
     CARD = "CARD"
+    FEATURE_GRID = "FEATURE-GRID"
+    PRICING_TABLE = "PRICING-TABLE"
 
     # Interactive elements
     FORM = "FORM"
@@ -323,18 +329,24 @@ class CVDetectionResult(BaseModel):
     )
 
 
-# Component templates for default props (17 types)
+# Component templates for default props (17+ types)
 COMPONENT_TEMPLATES: dict = {
     # Navigation
     "NAVBAR": {"logo": "Logo", "links": ["Home", "About", "Contact"], "cta": "Sign Up"},
+    "NAVIGATION-BAR": {"logo": "Logo", "items": ["Home", "About", "Contact"], "cta": "Sign Up"},
     "SIDEBAR": {"items": ["Dashboard", "Settings", "Profile"]},
     "FOOTER": {"links": ["Privacy", "Terms", "Contact"], "copyright": "© 2024"},
+    "FOOTER-SIMPLE": {"links": ["Privacy", "Terms", "Contact"], "copyright": "© 2024"},
     "BOTTOM_NAV": {"items": ["Home", "Search", "Profile", "Settings"]},
 
     # Content sections
     "HERO": {"headline": "Your Headline Here", "subheadline": "Supporting text", "cta": "Get Started"},
+    "HERO-BANNER": {"headline": "Your Headline Here", "subheadline": "Supporting text", "cta": "Get Started"},
     "SECTION": {"title": "Section Title", "content": "Section content goes here"},
+    "CONTENT-BLOCK": {"title": "Section Title", "content": "Section content goes here"},
     "CARD": {"title": "Card Title", "content": "Card content goes here"},
+    "FEATURE-GRID": {"features": [{"title": "Fast", "description": "High performance"}]},
+    "PRICING-TABLE": {"plans": [{"name": "Pro", "price": "$29", "desc": "Best value"}]},
 
     # Interactive elements
     "FORM": {"fields": [{"label": "Email", "type": "email"}], "submit": "Submit"},
