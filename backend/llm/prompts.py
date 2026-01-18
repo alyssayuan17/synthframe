@@ -75,26 +75,23 @@ You must output a JSON object with this EXACT structure:
 # AVAILABLE COMPONENT TYPES (MUST BE UPPERCASE)
 Every component "type" field MUST be one of these EXACT strings:
 
-- NAVIGATION-BAR: {{"logo": string, "items": string[], "cta": string}}
-- HERO-BANNER: {{"headline": string, "subheadline": string, "cta": string}}
-- FEATURE-GRID: {{"features": [{{"title", "description", "icon"}}]}}
-- CONTENT-BLOCK: {{"title": string, "content": string, "imagePosition": "left"|"right"}}
-- GALLERY-GRID: {{"images": string[]}}
-- TESTIMONIAL-SLIDER: {{"testimonials": [{{"name", "role", "quote"}}]}}
-- PRICING-TABLE: {{"plans": [{{"name", "price", "features"}}]}}
-- CALL-TO-ACTION: {{"headline": string, "buttonText": string}}
-- FOOTER-SIMPLE: {{"copyright": string, "links": string[]}}
-- LOGIN-FORM: {{"fields": string[], "submitText": string}}
-- SIGNUP-FORM: {{"fields": string[], "submitText": string}}
-- CONTACT-FORM: {{"fields": string[], "submitText": string}}
-- STATS-DISPLAY: {{"stats": [{{"label", "value"}}]}}
-- TEAM-GRID: {{"members": [{{"name", "role", "image"}}]}}
-- FAQ-ACCORDION: {{"items": [{{"question", "answer"}}]}}
-- TIMELINE-VIEW: {{"events": [{{"date", "title", "description"}}]}}
-- SEARCH-BAR: {{"placeholder": string}}
-- SOCIAL-LINKS: {{"networks": string[]}}
-- SIDEBAR: {{"items": string[]}}  # Legacy support
-- CARD: {{"title": string, "content": string}} # Legacy support
+- NAVBAR: {{"logo": string, "links": string[], "cta": string}}
+- HERO: {{"headline": string, "subheadline": string, "cta": string}}
+- SECTION: {{"title": string, "content": string}}
+- CARD: {{"title": string, "content": string}}
+- FORM: {{"fields": [{{"label", "type", "placeholder"}}], "submit": string}}
+- BUTTON: {{"label": string, "variant": "primary"|"secondary"}}
+- INPUT: {{"placeholder": string, "type": string}}
+- TEXT: {{"content": string}}
+- HEADING: {{"text": string, "level": 1-6}}
+- IMAGE: {{"alt": string, "src": string}}
+- TABLE: {{"columns": string[], "rows": number}}
+- CALENDAR: {{"view": "month"|"week"}}
+- CHART: {{"type": "bar"|"line"|"pie", "title": string}}
+- SIDEBAR: {{"items": string[]}}
+- FOOTER: {{"copyright": string, "links": string[]}}
+- BOTTOM_NAV: {{"items": string[]}}
+- FRAME: {{"device": string, "width": number, "height": number}}
 
 # DEVICE-SPECIFIC GUIDELINES
 - For IPHONE: Use single column layouts, avoid sidebars, use bottom navigation. Touch targets min 44px.

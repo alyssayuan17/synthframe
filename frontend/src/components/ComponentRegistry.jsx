@@ -557,10 +557,32 @@ export const COMPONENT_REGISTRY = {
     'footer-basic': FooterBasic,
     'footer-centered': FooterCentered,
 
-    // Legacy mappings for backward compatibility
+    // Standard Generalized Types (UPPERCASE - Backend sync)
+    'NAVBAR': NavbarComponent,
+    'SIDEBAR': DrawerComponent, // Using drawer for now
+    'FOOTER': FooterBasic,
+    'BOTTOM_NAV': TabsComponent, // Using tabs as proxy for now
+    'HERO': HeroBasic,
+    'SECTION': CardBasic,
+    'CARD': CardBasic,
+    'FORM': InputWithLabel,
+    'BUTTON': ButtonPrimary,
+    'INPUT': InputText,
+    'TEXT': TextareaComponent,
+    'HEADING': HeroBasic, // Using hero as proxy for heading for now
+    'IMAGE': CardWithImage,
+    'TABLE': StatsComponent, // Using stats as proxy for now
+    'CALENDAR': CalendarComponent,
+    'CHART': RadialProgress,
+    'FRAME': HeroBasic, // Should rarely be used directly as a component
+
+    // Legacy/Semantic mappings
     'navigation-bar': NavbarComponent,
     'sticky-header': NavbarComponent,
     'mega-menu': NavbarWithDropdown,
+    'hero-banner': HeroBasic,
+    'feature-grid': CardBasic,
+    'simple-footer': FooterBasic,
 };
 
 export const getComponentByType = (type) => {
