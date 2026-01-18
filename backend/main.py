@@ -87,12 +87,11 @@ async def generate_wireframe(prompt: str, use_scraper: bool = True) -> dict:
         "updated_at": datetime.utcnow().isoformat()
     }
     
+    # Return ONLY a concise message - NO JSON!
     return {
-        "wireframe_id": layout.id or "new_layout",
-        "components": components,
-        "canvas_size": latest_wireframe["canvas_size"],
-        "message": f"Generated wireframe with {len(layout.components)} components. The wireframe is now available on the canvas.",
-        "used_context": used_context
+        "message": f"✅ Wireframe created with {len(layout.components)} components. The layout is now visible on your canvas.",
+        "component_count": len(layout.components),
+        "wireframe_id": layout.id or "new_layout"
     }
 
 @mcp.tool()
